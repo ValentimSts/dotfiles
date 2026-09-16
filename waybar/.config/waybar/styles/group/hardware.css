@@ -1,0 +1,8 @@
+@import url("../../palette.css");
+
+@import url("../custom/hardware.css");
+@import url("../cpu.css");
+@import url("../memory.css");
+
+#hardware {
+}

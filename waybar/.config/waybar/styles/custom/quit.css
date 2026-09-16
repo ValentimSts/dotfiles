@@ -1,0 +1,9 @@
+@import url("../../palette.css");
+
+#custom-quit {
+    color: @color7;
+}
+
+#custom-quit:hover {
+    color: @color15;
+}

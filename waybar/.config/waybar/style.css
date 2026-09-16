@@ -1,0 +1,37 @@
+@import url("palette.css");
+
+@import url("styles/workspaces.css");
+@import url("styles/clock.css");
+
+@import url("styles/group/hardware.css");
+@import url("styles/group/rightgroup.css");
+
+* {
+  border-radius: 0px;
+  min-height: 0;
+  font-family: "RobotoMono Nerd Font";
+  font-weight: 500;
+  font-size: 18px;
+}
+
+window#waybar {
+  background: @foreground;
+  border-radius: 0px 0px 8px 8px;
+}
+
+.modules-left {
+  padding: 5;
+}
+
+.modules-center {
+  padding: 5;
+}
+
+.modules-right {
+  padding: 5;
+}
+
+tooltip {
+  background-color: @foreground;
+  border: 2px solid @color8;
+}

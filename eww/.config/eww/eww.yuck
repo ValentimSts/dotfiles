@@ -1,0 +1,99 @@
+; ============================================
+; Control Panel - Variables
+; ============================================
+
+; Polling variables for system state
+(defpoll volume :interval "1s"
+  "pamixer --get-volume 2>/dev/null || echo 50")
+
+(defpoll brightness :interval "1s"
+  "brightnessctl -m 2>/dev/null | awk -F',' '{print $4}' | tr -d '%' || echo 50")
+
+(defpoll wifi-status :interval "2s"
+  "nmcli radio wifi 2>/dev/null || echo disabled")
+
+(defpoll wifi-ssid :interval "5s"
+  "nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2 || echo 'Not connected'")
+
+(defpoll bluetooth-status :interval "2s"
+  "bluetoothctl show 2>/dev/null | grep 'Powered:' | awk '{print $2}' || echo no")
+
+; ============================================
+; Control Panel - Widget
+; ============================================
+
+(defwidget control-panel []
+  (box :class "control-panel"
+       :orientation "v"
+       :space-evenly false
+       :spacing 15
+    
+    ; Volume Row: icon | percentage | slider
+    (box :class "slider-row"
+         :orientation "h"
+         :space-evenly false
+         :spacing 5
+      (label :class "icon" :text "󰕾")
+      (label :class "value" :text "${volume}%")
+      (scale :class "slider volume-slider"
+             :hexpand true
+             :min 0
+             :max 100
+             :value volume
+             :onchange "pamixer --set-volume {}"))
+    
+    ; Brightness Row: icon | percentage | slider
+    (box :class "slider-row"
+         :orientation "h"
+         :space-evenly false
+         :spacing 5
+      (label :class "icon" :text "󰃟")
+      (label :class "value" :text "${brightness}%")
+      (scale :class "slider brightness-slider"
+             :hexpand true
+             :min 1
+             :max 100
+             :value brightness
+             :onchange "brightnessctl set {}%"))
+    
+    ; Toggles Section
+    (box :class "toggles"
+         :orientation "h"
+         :space-evenly true
+         :spacing 10
+      
+      ; WiFi Toggle
+      (button :class "toggle ${wifi-status == 'enabled' ? 'active' : ''}"
+              :onclick "if nmcli radio wifi | grep -q enabled; then nmcli radio wifi off; else nmcli radio wifi on; fi"
+              :tooltip "${wifi-status == 'enabled' ? wifi-ssid : 'WiFi Off'}"
+        (box :orientation "v"
+             :space-evenly false
+             :spacing 5
+          (label :class "toggle-icon" :text "${wifi-status == 'enabled' ? '󰤨' : '󰤭'}")
+          (label :class "toggle-label" :text "WiFi")))
+      
+      ; Bluetooth Toggle
+      (button :class "toggle ${bluetooth-status == 'yes' ? 'active' : ''}"
+              :onclick "if bluetoothctl show | grep -q 'Powered: yes'; then bluetoothctl power off; else bluetoothctl power on; fi"
+              :tooltip "${bluetooth-status == 'yes' ? 'Bluetooth On' : 'Bluetooth Off'}"
+        (box :orientation "v"
+             :space-evenly false
+             :spacing 5
+          (label :class "toggle-icon" :text "${bluetooth-status == 'yes' ? '󰂯' : '󰂲'}")
+          (label :class "toggle-label" :text "Bluetooth"))))))
+
+; ============================================
+; Control Panel - Window
+; ============================================
+
+(defwindow control-panel
+           :monitor 0
+           :geometry (geometry :x "10px"
+                               :y "10px"
+                               :width "275px"
+                               :height "200px"
+                               :anchor "top right")
+           :stacking "overlay"
+           :windowtype "dialog"
+           :wm-ignore true
+  (control-panel))

@@ -1,0 +1,48 @@
+// ------------------
+//
+//  Network
+//
+// ------------------
+
+{
+  "network": {
+    "format-wifi" : "",
+    "format-ethernet": "󰈀 ",
+    "format-disconnected" : "",
+    "interval": 10,
+    "tooltip": false,
+    "format-icons": [
+      "󰣾 ",  
+      "󰣴 ",  
+      "󰣶 ",  
+      "󰣸 ",
+      "󰣺 "
+    ]
+         
+    /**    
+    "format-icons": [
+      "󰤯 ", 
+      "󰤟 ", 
+      "󰤢 ",
+      "󰤥 ",
+      "󰤨 "
+    ]
+    **/
+
+  }
+}
+
+
+/**
+
+"network": {
+  "format-wifi": "",
+  "format-ethernet":"",
+  "format-disconnected": "",
+  "tooltip-format-disconnected": "Error",
+  "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+  "tooltip-format-ethernet": "{ifname} 🖧 ",
+  "on-click": "kitty nmtui"
+},
+
+**/

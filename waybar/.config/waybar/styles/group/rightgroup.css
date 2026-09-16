@@ -1,0 +1,17 @@
+@import url("../../palette.css");
+
+@import url("../battery.css");
+@import url("../network.css");
+@import url("../backlight.css");
+@import url("../pulseaudio.css");
+@import url("./power.css");
+
+#rightgroup {
+  margin: 10 5 10 10;
+  padding: 5 10;
+  border-radius: 16px;
+}
+
+#rightgroup:hover {
+  background-color: @color4;
+}

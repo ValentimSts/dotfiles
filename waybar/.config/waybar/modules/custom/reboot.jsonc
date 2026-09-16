@@ -1,0 +1,13 @@
+// ------------------
+//
+//  Reboot
+//
+// ------------------
+
+{
+    "custom/reboot": {
+        "format": "󰜉",
+        "tooltip": false,
+        "on-click": "reboot"
+    }
+}

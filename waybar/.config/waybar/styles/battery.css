@@ -1,0 +1,6 @@
+@import url("../palette.css");
+
+#battery {
+  margin-right: 10;
+  color: @color0;
+}

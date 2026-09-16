@@ -1,0 +1,29 @@
+// ------------------
+//
+//  Hardware Group
+//
+// ------------------
+
+{
+    "include": [
+        "~/.config/waybar/modules/custom/hardware.jsonc",
+        
+        "~/.config/waybar/modules/cpu.jsonc",
+        "~/.config/waybar/modules/memory.jsonc"
+    ],
+
+    "group/hardware": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 500,
+            "transition-left-to-right": false
+        },
+        "modules": [
+            "custom/hardware",
+
+            "cpu",
+            "memory"
+            // "temperature"
+        ]
+    }
+}

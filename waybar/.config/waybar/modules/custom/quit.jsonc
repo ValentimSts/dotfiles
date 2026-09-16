@@ -1,0 +1,13 @@
+// ------------------
+//
+//  Quit
+//
+// ------------------
+
+{
+    "custom/quit": {
+        "format": "󰗼",
+        "tooltip": false,
+        "on-click": "hyprctl dispatch exit"
+    }
+}

@@ -1,0 +1,9 @@
+@import url("../palette.css");
+
+#tray {
+  margin: 6px 6px 6px 0px;
+  padding: 10px;
+  background-color: @color2;
+  border: 2px solid @color1;
+  color: @color7;
+}

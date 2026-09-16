@@ -1,0 +1,13 @@
+// ------------------
+//
+//  Power
+//
+// ------------------
+
+{
+    "custom/power": {
+        "format": "⏻",
+        "tooltip": false,
+        "on-click": "~/.config/waybar/scripts/power-menu.sh"
+    }
+}

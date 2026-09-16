@@ -1,0 +1,5 @@
+@import url("../palette.css");
+
+#backlight {
+  color: @color0;
+}

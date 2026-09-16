@@ -1,0 +1,6 @@
+@import url("../../palette.css");
+
+#custom-hardware {
+    margin: 10;
+    color: @color0;
+}

@@ -1,0 +1,9 @@
+@import url("../../palette.css");
+
+@import url("../custom/power.css");
+@import url("../custom/quit.css");
+@import url("../custom/lock.css");
+@import url("../custom/reboot.css");
+
+#power {
+}

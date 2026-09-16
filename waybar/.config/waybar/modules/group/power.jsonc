@@ -1,0 +1,31 @@
+// ------------------
+//
+//  Power Group
+//
+// ------------------
+
+{
+  "include": [
+    "~/.config/waybar/modules/custom/power.jsonc",
+
+    "~/.config/waybar/modules/custom/quit.jsonc",
+    "~/.config/waybar/modules/custom/lock.jsonc",
+    "~/.config/waybar/modules/custom/reboot.jsonc"
+  ],
+
+  "group/power": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 500,
+      "children-class": "not-power",
+      "transition-left-to-right": false
+    },
+    "modules": [
+      "custom/power",
+
+      "custom/quit",
+      "custom/lock",
+      "custom/reboot"
+    ]
+  }
+}

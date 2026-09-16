@@ -1,0 +1,10 @@
+@import url("../../palette.css");
+
+#custom-power {
+    padding: 10px;
+    color: @color7;
+}
+
+#custom-power:hover {
+    color: @color15;
+}

@@ -1,0 +1,12 @@
+// ------------------
+//
+//  Hardware Wrap
+//
+// ------------------
+
+{
+    "custom/hardware": {
+        "format": "Hardware",
+        "tooltip": false
+    }
+}

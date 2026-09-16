@@ -1,0 +1,9 @@
+@import url("../../palette.css");
+
+#custom-reboot {
+    color: @color7;
+}
+
+#custom-reboot:hover {
+    color: @color15;
+}

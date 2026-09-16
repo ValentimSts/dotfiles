@@ -1,0 +1,17 @@
+// ------------------
+//
+//  Spacer
+//
+//    Literally just a 
+//    spacer to create
+//    space between other
+//    modules
+//
+// ------------------
+
+{
+    "custom/spacer": {
+        "format": " ",
+        "tooltip": false
+    }
+}

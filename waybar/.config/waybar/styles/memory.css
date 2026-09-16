@@ -1,0 +1,6 @@
+@import url("../palette.css");
+
+#memory {
+  margin: 5;
+  color: @color0;
+}

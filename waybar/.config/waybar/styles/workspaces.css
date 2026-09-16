@@ -1,0 +1,28 @@
+@import url("../palette.css");
+
+#workspaces {
+  background-color: transparent;
+  margin: 10;
+}
+
+#workspaces button {
+  all: initial;
+  min-width: 0;
+  box-shadow: inset 0 -3px transparent;
+  padding: 2px 8px;
+  color: @color5;
+}
+
+#workspaces button.empty {
+  color: @color7;
+}
+
+#workspaces button.active {
+  color: @color0;
+  background-color: @color1;
+  border-radius: 4px;
+}
+
+#workspaces button.urgent {
+  background-color: @color9;
+}

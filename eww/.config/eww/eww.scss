@@ -1,0 +1,122 @@
+// ============================================
+// Control Panel Styles
+// ============================================
+
+$bg-color: #1e1e2e;
+$bg-secondary: #313244;
+$fg-color: #cdd6f4;
+$fg-dim: #a6adc8;
+$accent: #89b4fa;
+$accent-secondary: #74c7ec;
+$success: #a6e3a1;
+$warning: #f9e2af;
+$border-radius: 12px;
+
+* {
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free", sans-serif;
+  font-size: 14px;
+}
+
+.control-panel {
+  background-color: $bg-color;
+  border-radius: $border-radius;
+  padding: 20px;
+  border: 1px solid $bg-secondary;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+// Slider row styles
+.slider-row {
+  background-color: $bg-secondary;
+  border-radius: 8px;
+  padding: 12px;
+  
+  .icon {
+    font-size: 18px;
+    color: $accent;
+    min-width: 24px;
+  }
+  
+  .value {
+    color: $fg-dim;
+    font-size: 12px;
+    min-width: 40px;
+    text-align: right;
+  }
+}
+
+.slider {
+  min-height: 8px;
+  min-width: 100px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  
+  trough {
+    min-height: 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  highlight {
+    border-radius: 4px;
+  }
+  
+  slider {
+    min-width: 16px;
+    min-height: 16px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.volume-slider {
+  highlight {
+    background: linear-gradient(90deg, $accent, $accent-secondary);
+  }
+}
+
+.brightness-slider {
+  highlight {
+    background: linear-gradient(90deg, $warning, #fab387);
+  }
+}
+
+.toggles {
+  margin-top: 5px;
+}
+
+.toggle {
+  background-color: $bg-secondary;
+  border-radius: 12px;
+  padding: 15px 20px;
+  transition: all 200ms ease;
+  min-width: 100px;
+  
+  &:hover {
+    background-color: lighten($bg-secondary, 5%);
+  }
+  
+  &.active {
+    background-color: rgba($accent, 0.2);
+    
+    .toggle-icon {
+      color: $accent;
+    }
+    
+    .toggle-label {
+      color: $accent;
+    }
+  }
+  
+  .toggle-icon {
+    font-size: 24px;
+    color: $fg-dim;
+  }
+  
+  .toggle-label {
+    font-size: 12px;
+    color: $fg-dim;
+  }
+}

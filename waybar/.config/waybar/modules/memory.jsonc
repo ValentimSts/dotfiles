@@ -1,0 +1,16 @@
+// ------------------
+//
+//  Memory
+//
+// ------------------
+
+{
+  "memory": {
+    "format": "mem {percentage}%",
+    "interval": 1,
+
+    "states": {
+      "critical": 80
+    }
+  }
+}

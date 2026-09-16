@@ -1,0 +1,5 @@
+@import url("../palette.css");
+
+#pulseaudio {
+  color: @color0;
+}
