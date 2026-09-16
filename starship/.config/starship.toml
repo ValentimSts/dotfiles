@@ -43,20 +43,20 @@ symbol = "\uf418 "
 style = "bold mauve"
 format = "[$symbol$branch(:$remote_branch)]($style) "
 
-# Compact status: * dirty, + staged, ? untracked, ! conflicts, arrows for ahead/behind.
+# Status with counts: *N modified, +N staged, ?N untracked, !N conflicts, >N ahead, <N behind.
 [git_status]
-style = "bold red"
-format = "([$all_status$ahead_behind]($style) )"
-conflicted = "!"
-ahead = ">${count}"
-behind = "<${count}"
-diverged = "<>"
-untracked = "?"
-stashed = "\\$"
-modified = "*"
-staged = "+"
-renamed = "r"
-deleted = "x"
+style = "bold peach"
+format = "([$conflicted$stashed$deleted$renamed$modified$staged$untracked$ahead_behind]($style))"
+conflicted = "!${count} "
+stashed = "\\$${count} "
+deleted = "x${count} "
+renamed = "r${count} "
+modified = "*${count} "
+staged = "+${count} "
+untracked = "?${count} "
+ahead = ">${count} "
+behind = "<${count} "
+diverged = ">${ahead_count} <${behind_count} "
 
 [git_state]
 style = "bold yellow"

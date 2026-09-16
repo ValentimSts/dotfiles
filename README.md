@@ -56,8 +56,8 @@ to the right array in `scripts/lib.sh`, and run `make restow`.
 
 The bash prompt is [Starship](https://starship.rs), configured in
 `starship/.config/starship.toml`. It shows the full path from `~`, the git branch
-with a compact status (`*` modified, `+` staged, `?` untracked, `>N` ahead,
-`<N` behind), the docker context when one is set, and the duration of any
+with a counted status (`*N` modified, `+N` staged, `?N` untracked, `!N`
+conflicts, `>N` ahead, `<N` behind), the docker context when one is set, and the duration of any
 command slower than two seconds. `.bashrc` falls back to the plain Arch
 prompt when `starship` is not installed.
 
