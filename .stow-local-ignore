@@ -1,0 +1,12 @@
+# Files at the package root that Stow must never link into $HOME.
+\.git
+\.gitignore
+\.stow-local-ignore
+README.*
+LICENSE
+Makefile
+install\.sh
+^/scripts
+^/packages
+^/gnome
+^/\.claude

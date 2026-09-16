@@ -1,0 +1,12 @@
+# Secrets and machine-local state (never tracked)
+**/secrets.sh
+gh/.config/gh/hosts.yml
+
+# Editor and tool noise
+*.bak
+*~
+*.swp
+.DS_Store
+
+# Neovim plugin manager writes these at runtime
+nvim/.config/nvim/plugin/
