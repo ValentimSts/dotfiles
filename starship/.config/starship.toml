@@ -54,7 +54,7 @@ format = "[@$hostname]($style) "
 [os]
 disabled = false
 style = "bold blue"
-format = "[$symbol]($style) "
+format = "[$symbol]($style)  "
 
 [os.symbols]
 Arch = ""
