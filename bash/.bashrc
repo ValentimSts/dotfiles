@@ -18,6 +18,9 @@ starship_blank_line() {
     STARSHIP_FIRST_PROMPT_DONE=1
   fi
 }
+# After the screen is cleared the next prompt counts as a first prompt again.
+clear() { command clear "$@"; STARSHIP_FIRST_PROMPT_DONE=; }
+reset() { command reset "$@"; STARSHIP_FIRST_PROMPT_DONE=; }
 if command -v starship >/dev/null 2>&1; then
   starship_precmd_user_func="starship_blank_line"
   eval "$(starship init bash)"
