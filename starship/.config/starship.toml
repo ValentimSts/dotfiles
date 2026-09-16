@@ -102,7 +102,7 @@ format = "[\uf520 $duration]($style) "
 [time]
 disabled = false
 style = "bright-black"
-format = "[\uf017 $time]($style)"
+format = "[\uf017  $time]($style)"
 time_format = "%H:%M"
 
 [character]
