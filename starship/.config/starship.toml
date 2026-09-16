@@ -8,11 +8,6 @@ $directory\
 $git_branch\
 $git_status\
 $git_state\
-$nodejs\
-$python\
-$rust\
-$java\
-$golang\
 $docker_context\
 $cmd_duration\
 $line_break\
@@ -44,9 +39,9 @@ home_symbol = "~"
 read_only = " ro"
 
 [git_branch]
-symbol = ""
+symbol = "\uf418 "
 style = "bold mauve"
-format = "on [$branch(:$remote_branch)]($style) "
+format = "[$symbol$branch(:$remote_branch)]($style) "
 
 # Compact status: * dirty, + staged, ? untracked, ! conflicts, arrows for ahead/behind.
 [git_status]
@@ -76,32 +71,6 @@ format = "took [$duration]($style) "
 success_symbol = "[>](bold green)"
 error_symbol = "[>](bold red)"
 vimcmd_symbol = "[<](bold yellow)"
-
-# Language modules only appear inside matching projects; keep them terse.
-[nodejs]
-symbol = "node "
-style = "green"
-format = "[$symbol$version]($style) "
-
-[python]
-symbol = "py "
-style = "yellow"
-format = "[$symbol$version( $virtualenv)]($style) "
-
-[rust]
-symbol = "rs "
-style = "peach"
-format = "[$symbol$version]($style) "
-
-[java]
-symbol = "java "
-style = "red"
-format = "[$symbol$version]($style) "
-
-[golang]
-symbol = "go "
-style = "teal"
-format = "[$symbol$version]($style) "
 
 [docker_context]
 symbol = "docker "
