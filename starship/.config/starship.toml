@@ -57,19 +57,19 @@ style = "bold blue"
 format = "[$symbol]($style)  "
 
 [os.symbols]
-Arch = ""
+Arch = "\uf303"
 
 # Full path from ~, never collapsed to the repo root, with a folder icon.
 [directory]
 style = "bold blue"
-format = "[ $path]($style)[$read_only]($read_only_style) "
+format = "[\uf07b  $path]($style)[$read_only]($read_only_style) "
 truncation_length = 0
 truncate_to_repo = false
 home_symbol = "~"
 read_only = " ro"
 
 [git_branch]
-symbol = " "
+symbol = "\uf418 "
 style = "bold peach"
 format = "[$symbol$branch(:$remote_branch)]($style) "
 
@@ -111,15 +111,15 @@ symbol = " "
 [cmd_duration]
 min_time = 2000
 style = "overlay"
-format = "[ $duration]($style) "
+format = "[\uf520 $duration]($style) "
 
 [time]
 disabled = false
 style = "overlay"
-format = "[ $time]($style)"
+format = "[\uf017 $time]($style)"
 time_format = "%H:%M"
 
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❮](bold yellow)"
+success_symbol = "[\u276f](bold green)"
+error_symbol = "[\u276f](bold red)"
+vimcmd_symbol = "[\u276e](bold yellow)"
