@@ -95,10 +95,13 @@ Split, tab and hint bindings live in `kitty/.config/kitty/configs/keymaps.conf`.
 | `ctrl+shift+p` then `w` | Insert a word by hint |
 | `ctrl+shift+f` | Open scrollback in Neovim |
 | `ctrl+shift+g` | Open the last command's output in Neovim |
+| `ctrl+shift+a` then `m` / `l` / `d` | Background opacity more / less / default |
 | `ctrl+shift+f5` | Reload the config |
 | `shift+enter` | Send a newline without executing (multi-line prompts) |
 | `ctrl+shift+b` | Send `ctrl+B` as a CSI-u sequence (for apps that need it) |
 
+The theme follows the desktop colour scheme: `dark-theme.auto.conf` (Catppuccin) and
+`light-theme.auto.conf` (e-ink light) are picked automatically.
 Remote control is enabled on the `unix:@kitty` socket, so `kitten @` commands
 and Neovim plugins such as smart-splits can drive windows from outside.
 
