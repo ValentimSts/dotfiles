@@ -10,7 +10,7 @@ help: ## Show this help
 install: ## Full bootstrap for PROFILE (default: gnome)
 	./install.sh --profile $(PROFILE)
 
-stow: ## Link packages for PROFILE into $$HOME
+stow: ## Link packages for PROFILE into HOME
 	scripts/stow.sh stow --profile $(PROFILE)
 
 restow: ## Re-link packages for PROFILE (after adding files)
