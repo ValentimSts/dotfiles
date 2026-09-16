@@ -1,0 +1,14 @@
+apps-menu@gnome-shell-extensions.gcampax.github.com
+batterytime@typeof.pw
+bluetooth-quick-connect@bjarosze.gmail.com
+blur-my-shell@aunetx
+clipboard-indicator@tudmotu.com
+dash-to-dock@micxgx.gmail.com
+drive-menu@gnome-shell-extensions.gcampax.github.com
+just-perfection-desktop@just-perfection
+openbar@neuromorph
+screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com
+spotify-controls@Sonath21
+system-monitor@gnome-shell-extensions.gcampax.github.com
+user-theme@gnome-shell-extensions.gcampax.github.com
+workspace-indicator@gnome-shell-extensions.gcampax.github.com

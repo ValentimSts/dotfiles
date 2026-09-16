@@ -1,0 +1,16 @@
+autofs
+brave-bin
+gnome-shell-pomodoro
+libinput-gestures
+neofetch
+pacfinder
+python-pywal16
+sdl2-debug
+slack-desktop
+solidity-bin
+spicetify-cli
+spicetify-themes-git
+stably-orca-bin
+tzupdate
+visual-studio-code-bin
+yay

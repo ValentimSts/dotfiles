@@ -1,0 +1,2 @@
+com.mattjakeman.ExtensionManager
+io.github.flattool.Ignition
