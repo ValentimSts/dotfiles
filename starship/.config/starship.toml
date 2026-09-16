@@ -1,5 +1,6 @@
 # Starship prompt. Docs: https://starship.rs/config/
-# Palette follows the Catppuccin Mocha colors used by kitty.
+# Colors are ANSI names (blue, yellow, red, ...) so the prompt takes its
+# colors from whatever scheme kitty has loaded (color0-color15).
 #
 # Line 1: user@host  os  folder path  branch  status  (+added -removed) ... duration  clock
 # Line 2: prompt character
@@ -25,30 +26,15 @@ $character"""
 # The blank line between prompts is printed by ~/.bashrc (starship_blank_line),
 # which skips it on the first prompt and after clear.
 add_newline = false
-palette = "catppuccin_mocha"
-
-[palettes.catppuccin_mocha]
-rosewater = "#f5e0dc"
-peach = "#fab387"
-yellow = "#f9e2af"
-green = "#a6e3a1"
-teal = "#94e2d5"
-blue = "#89b4fa"
-lavender = "#b4befe"
-mauve = "#cba6f7"
-red = "#f38ba8"
-text = "#cdd6f4"
-overlay = "#6c7086"
-
 [username]
 show_always = true
-style_user = "overlay"
+style_user = "bright-black"
 style_root = "bold red"
 format = "[$user]($style)"
 
 [hostname]
 ssh_only = false
-style = "overlay"
+style = "bright-black"
 format = "[@$hostname]($style) "
 
 [os]
@@ -70,7 +56,7 @@ read_only = " ro"
 
 [git_branch]
 symbol = "\uf418 "
-style = "bold peach"
+style = "bold yellow"
 format = "[$symbol$branch(:$remote_branch)]($style) "
 
 # Status with counts: *N modified, +N staged, ?N untracked, !N conflicts, >N ahead, <N behind.
@@ -110,12 +96,12 @@ symbol = " "
 
 [cmd_duration]
 min_time = 2000
-style = "overlay"
+style = "bright-black"
 format = "[\uf520 $duration]($style) "
 
 [time]
 disabled = false
-style = "overlay"
+style = "bright-black"
 format = "[\uf017 $time]($style)"
 time_format = "%H:%M"
 
