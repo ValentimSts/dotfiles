@@ -1,0 +1,109 @@
+# Starship prompt. Docs: https://starship.rs/config/
+# Palette follows the Catppuccin Mocha colors used by kitty.
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$git_state\
+$nodejs\
+$python\
+$rust\
+$java\
+$golang\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character"""
+
+add_newline = true
+palette = "catppuccin_mocha"
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+blue = "#89b4fa"
+lavender = "#b4befe"
+mauve = "#cba6f7"
+red = "#f38ba8"
+text = "#cdd6f4"
+overlay = "#6c7086"
+
+# Full path from ~, never collapsed to the repo root.
+[directory]
+style = "bold blue"
+format = "[$path]($style)[$read_only]($read_only_style) "
+truncation_length = 0
+truncate_to_repo = false
+home_symbol = "~"
+read_only = " ro"
+
+[git_branch]
+symbol = ""
+style = "bold mauve"
+format = "on [$branch(:$remote_branch)]($style) "
+
+# Compact status: * dirty, + staged, ? untracked, ! conflicts, arrows for ahead/behind.
+[git_status]
+style = "bold red"
+format = "([$all_status$ahead_behind]($style) )"
+conflicted = "!"
+ahead = ">${count}"
+behind = "<${count}"
+diverged = "<>"
+untracked = "?"
+stashed = "\\$"
+modified = "*"
+staged = "+"
+renamed = "r"
+deleted = "x"
+
+[git_state]
+style = "bold yellow"
+format = "\\([$state( $progress_current/$progress_total)]($style)\\) "
+
+[cmd_duration]
+min_time = 2000
+style = "overlay"
+format = "took [$duration]($style) "
+
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
+vimcmd_symbol = "[<](bold yellow)"
+
+# Language modules only appear inside matching projects; keep them terse.
+[nodejs]
+symbol = "node "
+style = "green"
+format = "[$symbol$version]($style) "
+
+[python]
+symbol = "py "
+style = "yellow"
+format = "[$symbol$version( $virtualenv)]($style) "
+
+[rust]
+symbol = "rs "
+style = "peach"
+format = "[$symbol$version]($style) "
+
+[java]
+symbol = "java "
+style = "red"
+format = "[$symbol$version]($style) "
+
+[golang]
+symbol = "go "
+style = "teal"
+format = "[$symbol$version]($style) "
+
+[docker_context]
+symbol = "docker "
+style = "blue"
+format = "[$symbol$context]($style) "

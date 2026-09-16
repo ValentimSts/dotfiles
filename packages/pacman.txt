@@ -139,6 +139,7 @@ sdl2-compat
 simple-scan
 snapshot
 sof-firmware
+starship
 steam
 stow
 sushi

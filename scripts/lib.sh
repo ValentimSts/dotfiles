@@ -8,7 +8,7 @@ DRY_RUN="${DRY_RUN:-0}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)}"
 
 # Stow package sets. "common" applies to every profile.
-PKGS_COMMON=(bash git gh kitty nvim neofetch vscode xdg color-schemes wallpapers)
+PKGS_COMMON=(bash starship git gh kitty nvim neofetch vscode xdg color-schemes wallpapers)
 PKGS_GNOME=()
 PKGS_HYPRLAND=(hypr waybar rofi eww waypaper libinput-gestures systemd)
 

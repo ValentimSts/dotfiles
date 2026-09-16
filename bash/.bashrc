@@ -9,6 +9,9 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 
+# Prompt: starship when available (see ~/.config/starship.toml), plain PS1 otherwise
+command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
+
 #
 #  Environment Variables
 # -----------------------------

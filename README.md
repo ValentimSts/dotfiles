@@ -34,7 +34,7 @@ to `~/.config/kitty/kitty.conf`.
 
 | Profile | Stow packages |
 | --- | --- |
-| common | `bash` `git` `gh` `kitty` `nvim` `neofetch` `vscode` `xdg` `color-schemes` `wallpapers` |
+| common | `bash` `starship` `git` `gh` `kitty` `nvim` `neofetch` `vscode` `xdg` `color-schemes` `wallpapers` |
 | gnome | common |
 | hyprland | common + `hypr` `waybar` `rofi` `eww` `waypaper` `libinput-gestures` `systemd` |
 
@@ -51,6 +51,15 @@ to `~/.config/kitty/kitty.conf`.
 
 Adding a new tool: create `<tool>/` mirroring the path under `$HOME`, add the name
 to the right array in `scripts/lib.sh`, and run `make restow`.
+
+## Prompt
+
+The bash prompt is [Starship](https://starship.rs), configured in
+`starship/.config/starship.toml`. It shows the full path from `~`, the git branch
+with a compact status (`*` modified, `+` staged, `?` untracked, `>N` ahead,
+`<N` behind), language versions inside matching projects, and the duration of
+any command slower than two seconds. `.bashrc` falls back to the plain Arch
+prompt when `starship` is not installed.
 
 ## Secrets
 
