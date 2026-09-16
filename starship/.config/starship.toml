@@ -13,7 +13,7 @@ $cmd_duration\
 $line_break\
 $character"""
 
-add_newline = true
+add_newline = false
 palette = "catppuccin_mocha"
 
 [palettes.catppuccin_mocha]

@@ -9,8 +9,19 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 
-# Prompt: starship when available (see ~/.config/starship.toml), plain PS1 otherwise
-command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
+# Prompt: starship when available (see ~/.config/starship.toml), plain PS1 otherwise.
+# Blank line between prompts, but not before the first one (avoids a gap at the top).
+starship_blank_line() {
+  if [ -n "${STARSHIP_FIRST_PROMPT_DONE-}" ]; then
+    printf '\n'
+  else
+    STARSHIP_FIRST_PROMPT_DONE=1
+  fi
+}
+if command -v starship >/dev/null 2>&1; then
+  starship_precmd_user_func="starship_blank_line"
+  eval "$(starship init bash)"
+fi
 
 #
 #  Environment Variables
