@@ -1,19 +1,29 @@
 # Starship prompt. Docs: https://starship.rs/config/
 # Palette follows the Catppuccin Mocha colors used by kitty.
+#
+# Line 1: user@host  os  folder path  branch  status  (+added -removed) ... duration  clock
+# Line 2: prompt character
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
+$username\
+$hostname\
+$os\
 $directory\
 $git_branch\
 $git_status\
 $git_metrics\
 $git_state\
 $docker_context\
+$fill\
 $cmd_duration\
+$time\
 $line_break\
 $character"""
 
+# The blank line between prompts is printed by ~/.bashrc (starship_blank_line),
+# which skips it on the first prompt and after clear.
 add_newline = false
 palette = "catppuccin_mocha"
 
@@ -30,17 +40,36 @@ red = "#f38ba8"
 text = "#cdd6f4"
 overlay = "#6c7086"
 
-# Full path from ~, never collapsed to the repo root.
+[username]
+show_always = true
+style_user = "overlay"
+style_root = "bold red"
+format = "[$user]($style)"
+
+[hostname]
+ssh_only = false
+style = "overlay"
+format = "[@$hostname]($style) "
+
+[os]
+disabled = false
+style = "bold blue"
+format = "[$symbol]($style) "
+
+[os.symbols]
+Arch = ""
+
+# Full path from ~, never collapsed to the repo root, with a folder icon.
 [directory]
 style = "bold blue"
-format = "[$path]($style)[$read_only]($read_only_style) "
+format = "[ $path]($style)[$read_only]($read_only_style) "
 truncation_length = 0
 truncate_to_repo = false
 home_symbol = "~"
 read_only = " ro"
 
 [git_branch]
-symbol = "\uf418 "
+symbol = " "
 style = "bold peach"
 format = "[$symbol$branch(:$remote_branch)]($style) "
 
@@ -59,7 +88,7 @@ ahead = ">${count} "
 behind = "<${count} "
 diverged = ">${ahead_count} <${behind_count} "
 
-# Lines added and removed in the working tree, like (+120 -211).
+# Lines added and removed in the working tree, like (+120 -211). Hidden when clean.
 [git_metrics]
 disabled = false
 added_style = "bold green"
@@ -70,17 +99,27 @@ format = "(\\(([+$added]($added_style))( [-$deleted]($deleted_style))\\) )"
 style = "bold yellow"
 format = "\\([$state( $progress_current/$progress_total)]($style)\\) "
 
-[cmd_duration]
-min_time = 2000
-style = "overlay"
-format = "took [$duration]($style) "
-
-[character]
-success_symbol = "[>](bold green)"
-error_symbol = "[>](bold red)"
-vimcmd_symbol = "[<](bold yellow)"
-
 [docker_context]
 symbol = "docker "
 style = "blue"
 format = "[$symbol$context]($style) "
+
+# Pushes duration and clock to the right edge.
+[fill]
+symbol = " "
+
+[cmd_duration]
+min_time = 2000
+style = "overlay"
+format = "[ $duration]($style) "
+
+[time]
+disabled = false
+style = "overlay"
+format = "[ $time]($style)"
+time_format = "%H:%M"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold yellow)"
