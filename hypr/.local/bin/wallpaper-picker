@@ -13,6 +13,7 @@ set -o errexit -o nounset -o pipefail
 dir="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
 state="${XDG_STATE_HOME:-$HOME/.local/state}/wallpaper"
 transition="${WALLPAPER_TRANSITION:-fade}"
+theme="${WALLPAPER_THEME:-$HOME/.config/rofi/wallpaper.rasi}"
 
 die() { printf 'wallpaper-picker: %s\n' "$*" >&2; exit 1; }
 
@@ -42,9 +43,16 @@ list() {
     -printf '%f\n' | sort
 }
 
+# Each rofi row carries its file as the icon so the list shows previews.
+# The grid is 3 columns wide; show one row for up to 3 images, else two.
 pick() {
-  local choice
-  choice="$(list | rofi -dmenu -i -p 'wallpaper')" || exit 0
+  local choice count rows=1
+  count="$(list | wc -l)"
+  [ "$count" -gt 3 ] && rows=2
+  choice="$(list | while IFS= read -r name; do
+      printf '%s\0icon\x1f%s\n' "$name" "$dir/$name"
+    done | rofi -dmenu -i -p 'wallpaper' -show-icons -theme "$theme" \
+             -theme-str "listview { lines: $rows; }")" || exit 0
   [ -n "$choice" ] || exit 0
   apply "$dir/$choice"
 }
