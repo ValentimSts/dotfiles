@@ -1,8 +1,14 @@
-vim.cmd("set number")
+local opt = vim.opt
 
-vim.cmd("set expandtab")
-vim.cmd("set tabstop=2")
-vim.cmd("set softtabstop=2")
-vim.cmd("set shiftwidth=2")
+opt.number = true
 
-vim.api.nvim_set_option("clipboard","unnamed") 
+opt.expandtab = true
+opt.tabstop = 2
+opt.softtabstop = 2
+opt.shiftwidth = 2
+
+-- Yank and paste go through the system clipboard (wl-copy on Wayland).
+opt.clipboard = "unnamedplus"
+
+-- Must be set before a colorscheme is applied.
+opt.termguicolors = true

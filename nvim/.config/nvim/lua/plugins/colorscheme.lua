@@ -1,28 +1,20 @@
+-- "rice" (colors/rice.lua) follows the desktop colour scheme chosen with
+-- `color-scheme set`; the variant comes from 'background'.
 return {
-  'nvim-mini/mini.base16',
-  -- 'xero/miasma.nvim',
+  "nvim-mini/mini.base16",
   lazy = false,
   priority = 1000,
 
   config = function()
-    local background_to_colorscheme = {
-      light = 'rice',
-      dark = 'rice',
-      -- dark = 'miasma',
-    }
-    
-    vim.opt.background = 'dark'
-    vim.cmd(
-      'colorscheme '
-        .. background_to_colorscheme[vim.opt.background:get() or 'dark']
-    )
-    vim.opt.termguicolors = true
+    -- Start in the mode the desktop is in: the switcher's "active" symlink
+    -- ends in dark or light.
+    local active = vim.uv.fs_readlink(vim.fn.expand("~/.local/state/color-schemes/active"))
+    vim.opt.background = (active and active:match("/light$")) and "light" or "dark"
+    vim.cmd.colorscheme("rice")
 
-    vim.keymap.set('n', '<leader>tt', function()
-      local new_background = vim.opt.background:get() == 'dark' and 'light'
-        or 'dark'
-      vim.opt.background = new_background
-      vim.cmd('colorscheme ' .. background_to_colorscheme[new_background])
-    end, { desc = 'Toggle colorscheme change' })
-  end
+    vim.keymap.set("n", "<leader>tt", function()
+      vim.opt.background = vim.opt.background:get() == "dark" and "light" or "dark"
+      vim.cmd.colorscheme("rice")
+    end, { desc = "Toggle light / dark" })
+  end,
 }

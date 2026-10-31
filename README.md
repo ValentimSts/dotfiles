@@ -169,19 +169,17 @@ four-finger swipe up toggles fullscreen.
 
 ### Neovim
 
-Leader is `space`, local leader is `\`. Defined in `nvim/.config/nvim/lua/keymaps.lua`
-and the plugin files under `lua/plugins/`.
+Leader is `space`, local leader is `\`. Keymaps are defined next to the plugin
+they belong to under `nvim/.config/nvim/lua/plugins/`. Yank, delete and paste use
+the system clipboard directly (`clipboard=unnamedplus`).
 
 | Keys | Action |
 | --- | --- |
-| `space y` / `space Y` | Yank motion / line to the system clipboard |
-| `space d` / `space D` | Delete motion / line to the system clipboard |
-| `space p` / `space P` | Paste from the system clipboard after / before the cursor |
 | `space ff` | Telescope: find files |
 | `space fg` | Telescope: live grep |
 | `space fb` | Telescope: buffers |
 | `space fh` | Telescope: help tags |
-| `space tt` | Toggle light / dark colorscheme |
+| `space tt` | Toggle light / dark (the `rice` colorscheme follows `color-scheme set`) |
 | `space ?` | which-key: show buffer-local keymaps |
 | `ctrl+b` / `ctrl+shift+b` | Open / close the Neo-tree file explorer |
 | `K` | LSP hover documentation |

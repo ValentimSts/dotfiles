@@ -1,6 +1,5 @@
--- Load lazy.nvim
-require("config.lazy")
-
 require("globals")
 require("settings")
-require("keymaps")
+
+-- Load lazy.nvim and the plugin specs under lua/plugins/
+require("config.lazy")

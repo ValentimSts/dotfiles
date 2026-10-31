@@ -11,8 +11,6 @@ gh/.config/gh/hosts.yml
 # Neovim plugin manager writes these at runtime
 nvim/.config/nvim/plugin/
 
-# Neovim plugin lockfile: versions float, so the file stays local
-nvim/.config/nvim/lazy-lock.json
 
 # Python bytecode from scripts/
 __pycache__/
