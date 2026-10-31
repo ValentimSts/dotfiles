@@ -7,13 +7,13 @@
 {
   "backlight": {
     "device": "amdgpu_bl1",
-    "format": "{icon}{percent:03d}% ",
+    "format": "{icon} {percent:03d}%",
     "tooltip": false,
     "format-icons": [
-      "󰃞 ",  
-      "󰃝 ",  
-      "󰃟 ",  
-      "󰃠 "
+      "󰃞",  
+      "󰃝",  
+      "󰃟",  
+      "󰃠"
     ]
   }
 }

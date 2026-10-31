@@ -7,25 +7,25 @@
 {
   "network": {
     "format-wifi" : "",
-    "format-ethernet": "󰈀 ",
+    "format-ethernet": "󰈀",
     "format-disconnected" : "",
     "interval": 10,
     "tooltip": false,
     "format-icons": [
-      "󰣾 ",  
-      "󰣴 ",  
-      "󰣶 ",  
-      "󰣸 ",
-      "󰣺 "
+      "󰣾",  
+      "󰣴",  
+      "󰣶",  
+      "󰣸",
+      "󰣺"
     ]
          
     /**    
     "format-icons": [
-      "󰤯 ", 
-      "󰤟 ", 
-      "󰤢 ",
-      "󰤥 ",
-      "󰤨 "
+      "󰤯", 
+      "󰤟", 
+      "󰤢",
+      "󰤥",
+      "󰤨"
     ]
     **/
 

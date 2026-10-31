@@ -7,15 +7,15 @@
 {
   "pulseaudio": {
     "scroll-step": 5,
-    "format": "{icon}  {volume:03d}%",
+    "format": "{icon} {volume:03d}%",
     "format-muted": " {volume:03d}%",
     "format-icons": {
-      "headphone": " ",
-      "hands-free": " ",
-      "headset": " ",
-      "phone": " ",
-      "portable": " ",
-      "car": " ",
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
       "default": ["", "", ""]
     }
     // "on-click": "pavucontrol"
