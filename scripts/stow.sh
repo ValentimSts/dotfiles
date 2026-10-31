@@ -34,11 +34,17 @@ done
 
 # backup_conflicts <pkg>: move any non-symlink file in $HOME that a package
 # would overwrite into $BACKUP_DIR, preserving its relative path.
+# A target reached through a folded directory symlink (Stow linking a whole
+# directory) resolves to the package file itself; that is not a conflict and
+# moving it would delete the file from the repo.
 backup_conflicts() {
   local pkg="$1" rel target
   while IFS= read -r -d '' f; do
     rel="${f#"$pkg"/}"
     target="$HOME/$rel"
+    if [ "$(readlink -f -- "$target")" = "$(readlink -f -- "$f")" ]; then
+      continue
+    fi
     if [ -e "$target" ] && [ ! -L "$target" ]; then
       log "backing up $target"
       run mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
