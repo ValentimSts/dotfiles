@@ -2,7 +2,8 @@
 
 #custom-power {
   margin: 0;
-  padding: 4px 14px;
+  padding: 0 14px;
+  font-size: 24px;
   border: 2px solid @background;
   border-left-width: 0;
   background-color: @background;
