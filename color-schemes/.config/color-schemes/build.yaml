@@ -1,0 +1,11 @@
+# Which schemes to render and which Base24 slot each uses as its UI accent
+# (active window border, selected rofi row, waybar highlight).
+# Every templates/*.j2 is rendered for every scheme and mode that has a
+# schemes/<scheme>/<mode>.yaml. Build: make color-schemes
+schemes:
+  orange-peel:
+    accent: base09
+  e-ink:
+    accent: base05
+  ricepaper:
+    accent: base05

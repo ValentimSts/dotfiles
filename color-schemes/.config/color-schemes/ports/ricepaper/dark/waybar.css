@@ -1,0 +1,29 @@
+/* Ricepaper e-ink Dark: generated from schemes/ricepaper/dark.yaml; do not edit. */
+@define-color foreground #cccccc;
+@define-color background #333333;
+@define-color background-alt #2c2c2c;
+@define-color selection #4a4a4a;
+@define-color muted #686868;
+@define-color accent #cccccc;
+@define-color error #e67e80;
+@define-color warning #dbbc7f;
+@define-color success #a7c080;
+@define-color info #83c092;
+@define-color cursor #cccccc;
+
+@define-color color0 #333333;
+@define-color color1 #e67e80;
+@define-color color2 #a7c080;
+@define-color color3 #dbbc7f;
+@define-color color4 #7fbbb3;
+@define-color color5 #d699b6;
+@define-color color6 #83c092;
+@define-color color7 #cccccc;
+@define-color color8 #686868;
+@define-color color9 #e67e80;
+@define-color color10 #a7c080;
+@define-color color11 #dbbc7f;
+@define-color color12 #7fbbb3;
+@define-color color13 #d699b6;
+@define-color color14 #83c092;
+@define-color color15 #f0f0f0;

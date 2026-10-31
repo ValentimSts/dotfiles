@@ -76,6 +76,28 @@ interface, window manager, peripherals, keybindings, power, Nautilus) into
 extension in `gnome/extensions.txt`, installing missing ones through
 `gnome-extensions-cli` when it is available. Log out and in after importing.
 
+## Colour schemes
+
+`color-schemes/` is a Stow package with one palette per scheme and mode, written
+as [Base24](https://github.com/tinted-theming/base24) YAML (24 slots: 8
+greys, 8 hues, 2 extra panes, 6 bright hues):
+
+| Path | Purpose |
+| --- | --- |
+| `schemes/<scheme>/{dark,light}.yaml` | The only hand-edited colour files. |
+| `templates/<app>.<ext>.j2` | One Jinja2 template per app (kitty, waybar, rofi, Hyprland, hyprlock, eww, Neovim). |
+| `build.yaml` | Which schemes to render and which slot is each scheme's UI accent. |
+| `ports/<scheme>/<mode>/` | Generated, committed. `make color-schemes` rebuilds, `make color-schemes-check` fails if stale. |
+| `.local/bin/color-scheme` | `list`, `current`, `set <scheme> [dark\|light]`, `mode dark\|light`. |
+
+`color-scheme set` points `~/.local/state/color-schemes/{scheme,active}` at the
+chosen ports, (re)creates the per-app links the configs import
+(`waybar/palette.css`, `rofi/colors.rasi`, `hypr/colors.lua`,
+`hypr/colors-hyprlock.conf`, `eww/_colors.scss`), sets the desktop colour
+scheme, and reloads kitty, waybar, Hyprland and eww. Kitty and Neovim pick
+dark or light themselves. Schemes: `orange-peel`, `e-ink`, `ricepaper`
+(`earl-grey` is still a plain kitty file).
+
 ## Shortcuts
 
 Custom bindings only. Anything not listed keeps the program's default.
@@ -109,8 +131,9 @@ Split, tab and hint bindings live in `kitty/.config/kitty/configs/keymaps.conf`.
 | `shift+enter` | Send a newline without executing (multi-line prompts) |
 | `ctrl+shift+b` | Send `ctrl+B` as a CSI-u sequence (for apps that need it) |
 
-The theme follows the desktop colour scheme: `dark-theme.auto.conf` (Catppuccin) and
-`light-theme.auto.conf` (e-ink light) are picked automatically.
+The theme follows the desktop colour scheme: `dark-theme.auto.conf` and
+`light-theme.auto.conf` include the active colour scheme's dark and light ports
+(see "Colour schemes" below).
 Remote control is enabled on the `unix:@kitty` socket, so `kitten @` commands
 and Neovim plugins such as smart-splits can drive windows from outside.
 

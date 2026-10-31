@@ -1,14 +1,13 @@
 return {
-  -- { 'sainnhe/everforest' },
-  'savq/melange-nvim',
+  'nvim-mini/mini.base16',
   -- 'xero/miasma.nvim',
   lazy = false,
   priority = 1000,
 
   config = function()
     local background_to_colorscheme = {
-      light = 'everforest',
-      dark = 'melange',
+      light = 'rice',
+      dark = 'rice',
       -- dark = 'miasma',
     }
     

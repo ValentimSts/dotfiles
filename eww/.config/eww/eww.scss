@@ -2,14 +2,9 @@
 // Control Panel Styles
 // ============================================
 
-$bg-color: #1e1e2e;
-$bg-secondary: #313244;
-$fg-color: #cdd6f4;
-$fg-dim: #a6adc8;
-$accent: #89b4fa;
-$accent-secondary: #74c7ec;
-$success: #a6e3a1;
-$warning: #f9e2af;
+// Colour variables come from _colors.scss, a symlink into the active colour
+// scheme's ports (managed by color-scheme).
+@import "colors";
 $border-radius: 12px;
 
 * {
@@ -79,7 +74,7 @@ $border-radius: 12px;
 
 .brightness-slider {
   highlight {
-    background: linear-gradient(90deg, $warning, #fab387);
+    background: linear-gradient(90deg, $warning, $accent);
   }
 }
 

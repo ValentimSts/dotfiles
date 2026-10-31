@@ -9,14 +9,12 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
+// Colours (background, background-alt, foreground, selected, active, urgent)
+// come from colors.rasi, a symlink into the active colour scheme's ports.
+@import "colors"
+
 * {
     font:                        "JetBrains Mono Nerd Font 10";
-    background:                  #2D1B14;
-    background-alt:              #462D23;
-    foreground:                  #FFFFFF;
-    selected:                    #E25F3E;
-    active:                      #7B6C5B;
-    urgent:                      #934A1C;
 }
 
 /*****----- Main Window -----*****/

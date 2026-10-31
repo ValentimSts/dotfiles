@@ -74,6 +74,17 @@ hl.env("HYPRCURSOR_SIZE", "24")
 ---- LOOK AND FEEL ----
 -----------------------
 
+-- colors.lua is a symlink into the active colour scheme's ports
+-- (color-scheme set <scheme>); fall back to neutral greys without one.
+local ok, colors = pcall(require, "colors")
+if not ok then
+    colors = {
+        active_border   = "rgba(ccccccee)",
+        inactive_border = "rgba(686868aa)",
+        shadow          = "rgba(1a1a1aee)",
+    }
+end
+
 -- Refer to https://wiki.hypr.land/configuring/core/config-options/
 hl.config({
     general = {
@@ -83,8 +94,8 @@ hl.config({
         border_size = 1,
 
         col = {
-            active_border   = "rgba(17314493)",
-            inactive_border = "rgba(15013287)",
+            active_border   = colors.active_border,
+            inactive_border = colors.inactive_border,
         },
 
         resize_on_border = false,
@@ -104,7 +115,7 @@ hl.config({
             enabled      = true,
             range        = 4,
             render_power = 3,
-            color        = "rgba(1a1a1aee)",
+            color        = colors.shadow,
         },
 
         blur = {

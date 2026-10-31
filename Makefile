@@ -2,7 +2,7 @@
 PROFILE ?= gnome
 SHELL := /usr/bin/env bash
 
-.PHONY: help install stow unstow restow packages export-packages gnome-export gnome-import secrets services lint
+.PHONY: help install stow unstow restow packages export-packages gnome-export gnome-import secrets services color-schemes color-schemes-check lint
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -36,6 +36,12 @@ secrets: ## Create ~/.config/shell/secrets.sh from the example
 
 services: ## Enable systemd services for PROFILE
 	scripts/enable-services.sh --profile $(PROFILE)
+
+color-schemes: ## Render every colour scheme port from color-schemes/.../schemes/*.yaml
+	scripts/build-color-schemes.py
+
+color-schemes-check: ## Fail if a committed port is stale (run before committing a palette change)
+	scripts/build-color-schemes.py --check
 
 lint: ## Run shellcheck over all scripts
 	shellcheck -x install.sh scripts/*.sh

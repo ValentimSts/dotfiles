@@ -1,0 +1,9 @@
+/* Orange Peel Light: generated from schemes/orange-peel/light.yaml; do not edit. */
+* {
+    background:                  #fdf8ed;
+    background-alt:              #f4edd9;
+    foreground:                  #2e331e;
+    selected:                    #ad905d;
+    active:                      #6f7d2a;
+    urgent:                      #b4452c;
+}

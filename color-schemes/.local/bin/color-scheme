@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# color-scheme: pick which rendered colour scheme the desktop uses.
+#
+# Usage: color-scheme list                 schemes and modes available
+#        color-scheme current              active scheme and mode
+#        color-scheme set SCHEME [MODE]    activate a scheme (mode defaults to current)
+#        color-scheme mode dark|light      flip the mode, keep the scheme
+#        color-scheme link                 (re)create the per-app symlinks only
+#
+# Ports live in ~/.config/color-schemes/ports/<scheme>/<mode>/ (rendered by
+# scripts/build-color-schemes.py in the dotfiles repo). The active choice is
+# two symlinks under ~/.local/state/color-schemes: "scheme" -> ports/<scheme>
+# (kitty reads dark/ and light/ from it itself) and "active" ->
+# ports/<scheme>/<mode>. Each app's config imports a fixed file that links
+# into "active", so switching retargets one symlink and reloads the apps.
+
+set -o errexit -o nounset -o pipefail
+
+ports="${COLOR_SCHEMES_PORTS:-$HOME/.config/color-schemes/ports}"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/color-schemes"
+config="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+die() { printf 'color-scheme: %s\n' "$*" >&2; exit 1; }
+
+# App config file -> port file inside "active". The configs in the dotfiles
+# import these names; the links are created here, not by Stow.
+app_links=(
+  "waybar/palette.css:waybar.css"
+  "rofi/colors.rasi:rofi.rasi"
+  "hypr/colors.lua:hyprland.lua"
+  "hypr/colors-hyprlock.conf:hyprlock.conf"
+  "eww/_colors.scss:eww.scss"
+)
+
+current_scheme() { [ -L "$state/scheme" ] && basename "$(readlink "$state/scheme")" || true; }
+current_mode()   { [ -L "$state/active" ] && basename "$(readlink "$state/active")" || true; }
+
+cmd_list() {
+  local d
+  for d in "$ports"/*/; do
+    d="${d%/}"
+    printf '%s:' "$(basename "$d")"
+    [ -d "$d/dark" ] && printf ' dark'
+    [ -d "$d/light" ] && printf ' light'
+    printf '\n'
+  done
+}
+
+cmd_current() {
+  local s m
+  s="$(current_scheme)"; m="$(current_mode)"
+  [ -n "$s" ] || die "no scheme active; run: color-scheme set SCHEME dark|light"
+  printf '%s %s\n' "$s" "$m"
+}
+
+cmd_link() {
+  local entry target link
+  for entry in "${app_links[@]}"; do
+    link="$config/${entry%%:*}"
+    target="$state/active/${entry##*:}"
+    mkdir -p "$(dirname "$link")"
+    if [ -e "$link" ] && [ ! -L "$link" ]; then
+      die "$link exists and is not a symlink; move it away first"
+    fi
+    ln -sfn "$target" "$link"
+  done
+}
+
+reload_apps() {
+  local mode="$1"
+  # kitty and GTK apps follow the desktop colour scheme; tell the desktop.
+  if command -v gsettings >/dev/null 2>&1; then
+    gsettings set org.gnome.desktop.interface color-scheme "prefer-$mode" 2>/dev/null || true
+  fi
+  pkill -SIGUSR1 -x kitty 2>/dev/null || true   # re-read kitty.conf and its includes
+  # Windows keep colours set through remote control across reloads; drop those
+  # overrides so the configured scheme shows. Sockets are listen_on plus the pid.
+  if command -v kitten >/dev/null 2>&1 && command -v ss >/dev/null 2>&1; then
+    local sock
+    for sock in $(ss -xl 2>/dev/null | grep -o '@kitty-[0-9]*' | sort -u); do
+      kitten @ --to "unix:$sock" set-colors --all --configured --reset >/dev/null 2>&1 || true
+    done
+  fi
+  pkill -SIGUSR2 -x waybar 2>/dev/null || true  # re-read style.css
+  if command -v hyprctl >/dev/null 2>&1 && [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    hyprctl reload >/dev/null 2>&1 || true
+  fi
+  if pgrep -x eww >/dev/null 2>&1; then
+    eww reload >/dev/null 2>&1 || true
+  fi
+  # rofi and hyprlock read their files at launch; nothing to do.
+}
+
+cmd_set() {
+  local scheme="${1:-}" mode="${2:-}"
+  [ -n "$scheme" ] || die "usage: color-scheme set SCHEME [dark|light]"
+  [ -d "$ports/$scheme" ] || die "no such scheme: $scheme (see: color-scheme list)"
+  [ -n "$mode" ] || mode="$(current_mode)"
+  [ -n "$mode" ] || mode="dark"
+  case "$mode" in dark|light) ;; *) die "mode must be dark or light" ;; esac
+  [ -d "$ports/$scheme/$mode" ] || die "$scheme has no $mode variant"
+  mkdir -p "$state"
+  ln -sfn "$ports/$scheme" "$state/scheme"
+  ln -sfn "$ports/$scheme/$mode" "$state/active"
+  cmd_link
+  reload_apps "$mode"
+  printf '%s %s\n' "$scheme" "$mode"
+}
+
+cmd_mode() {
+  local mode="${1:-}" scheme
+  case "$mode" in dark|light) ;; *) die "usage: color-scheme mode dark|light" ;; esac
+  scheme="$(current_scheme)"
+  [ -n "$scheme" ] || die "no scheme active; run: color-scheme set SCHEME $mode"
+  cmd_set "$scheme" "$mode"
+}
+
+case "${1:-}" in
+  list) cmd_list ;;
+  current) cmd_current ;;
+  set) shift; cmd_set "$@" ;;
+  mode) shift; cmd_mode "$@" ;;
+  link) cmd_link ;;
+  -h|--help|"") sed -n '2,8p' "$0" ;;
+  *) die "unknown command: $1" ;;
+esac

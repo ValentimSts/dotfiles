@@ -1,0 +1,9 @@
+/* E-Ink: generated from schemes/e-ink/light.yaml; do not edit. */
+* {
+    background:                  #cccccc;
+    background-alt:              #c2c2c2;
+    foreground:                  #474747;
+    selected:                    #474747;
+    active:                      #9a9a9a;
+    urgent:                      #333333;
+}

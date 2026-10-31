@@ -1,0 +1,9 @@
+/* E-Ink Dark: generated from schemes/e-ink/dark.yaml; do not edit. */
+* {
+    background:                  #333333;
+    background-alt:              #2c2c2c;
+    foreground:                  #c2c2c2;
+    selected:                    #c2c2c2;
+    active:                      #686868;
+    urgent:                      #cccccc;
+}

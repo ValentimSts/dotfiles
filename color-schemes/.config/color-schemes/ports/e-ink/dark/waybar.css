@@ -1,0 +1,29 @@
+/* E-Ink Dark: generated from schemes/e-ink/dark.yaml; do not edit. */
+@define-color foreground #c2c2c2;
+@define-color background #333333;
+@define-color background-alt #2c2c2c;
+@define-color selection #545454;
+@define-color muted #a4a4a4;
+@define-color accent #c2c2c2;
+@define-color error #cccccc;
+@define-color warning #7c7c7c;
+@define-color success #686868;
+@define-color info #b8b8b8;
+@define-color cursor #c2c2c2;
+
+@define-color color0 #333333;
+@define-color color1 #cccccc;
+@define-color color2 #686868;
+@define-color color3 #7c7c7c;
+@define-color color4 #868686;
+@define-color color5 #5e5e5e;
+@define-color color6 #b8b8b8;
+@define-color color7 #c2c2c2;
+@define-color color8 #a4a4a4;
+@define-color color9 #cccccc;
+@define-color color10 #686868;
+@define-color color11 #7c7c7c;
+@define-color color12 #868686;
+@define-color color13 #5e5e5e;
+@define-color color14 #b8b8b8;
+@define-color color15 #868686;

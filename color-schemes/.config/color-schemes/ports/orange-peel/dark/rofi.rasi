@@ -1,0 +1,9 @@
+/* Orange Peel Dark: generated from schemes/orange-peel/dark.yaml; do not edit. */
+* {
+    background:                  #1b1e12;
+    background-alt:              #242819;
+    foreground:                  #e6d5b8;
+    selected:                    #d3ab6a;
+    active:                      #9aa65a;
+    urgent:                      #d2694f;
+}

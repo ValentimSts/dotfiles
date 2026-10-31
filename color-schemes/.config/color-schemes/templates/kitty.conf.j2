@@ -1,0 +1,80 @@
+# vim:ft=kitty
+
+## name:     {{ scheme_name }}
+## author:   {{ scheme_author }}
+## license:  MIT
+## upstream: https://github.com/ValentimSts/dotfiles/tree/main/color-schemes/.config/color-schemes/schemes/{{ scheme_slug }}
+## blurb:    {{ scheme_description }}
+
+# Generated from schemes/{{ scheme_slug }}/{{ scheme_variant }}.yaml by scripts/build-color-schemes.py; do not edit.
+
+# The basic colors
+foreground              {{ roles.text }}
+background              {{ roles.bg }}
+selection_foreground    {{ roles.text }}
+selection_background    {{ roles.selection }}
+
+# Cursor colors
+cursor                  {{ roles.text }}
+cursor_text_color       {{ roles.bg }}
+
+# URL underline color when hovering with mouse
+url_color               {{ roles.link }}
+
+# Kitty window border colors
+active_border_color     {{ roles.accent }}
+inactive_border_color   {{ roles.muted }}
+bell_border_color       {{ roles.warning }}
+
+# OS Window titlebar colors
+wayland_titlebar_color  system
+macos_titlebar_color    system
+
+# Tab bar colors
+active_tab_foreground   {{ roles.bg }}
+active_tab_background   {{ roles.accent }}
+inactive_tab_foreground {{ roles.text }}
+inactive_tab_background {{ roles.bg_alt }}
+tab_bar_background      {{ roles.pane_dark }}
+
+# Colors for marks (marked text in the terminal)
+mark1_foreground {{ roles.bg }}
+mark1_background {{ roles.link }}
+mark2_foreground {{ roles.bg }}
+mark2_background {{ roles.keyword }}
+mark3_foreground {{ roles.bg }}
+mark3_background {{ roles.info }}
+
+# The 16 terminal colors
+
+# black
+color0 {{ ansi[0] }}
+color8 {{ ansi[8] }}
+
+# red
+color1 {{ ansi[1] }}
+color9 {{ ansi[9] }}
+
+# green
+color2  {{ ansi[2] }}
+color10 {{ ansi[10] }}
+
+# yellow
+color3  {{ ansi[3] }}
+color11 {{ ansi[11] }}
+
+# blue
+color4  {{ ansi[4] }}
+color12 {{ ansi[12] }}
+
+# magenta
+color5  {{ ansi[5] }}
+color13 {{ ansi[13] }}
+
+# cyan
+color6  {{ ansi[6] }}
+color14 {{ ansi[14] }}
+
+# white
+color7  {{ ansi[7] }}
+color15 {{ ansi[15] }}

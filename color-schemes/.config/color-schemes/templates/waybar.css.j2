@@ -1,0 +1,16 @@
+/* {{ scheme_name }}: generated from schemes/{{ scheme_slug }}/{{ scheme_variant }}.yaml; do not edit. */
+@define-color foreground {{ roles.text }};
+@define-color background {{ roles.bg }};
+@define-color background-alt {{ roles.bg_alt }};
+@define-color selection {{ roles.selection }};
+@define-color muted {{ roles.muted }};
+@define-color accent {{ roles.accent }};
+@define-color error {{ roles.error }};
+@define-color warning {{ roles.warning }};
+@define-color success {{ roles.success }};
+@define-color info {{ roles.info }};
+@define-color cursor {{ roles.text }};
+
+{% for i in range(16) %}
+@define-color color{{ i }} {{ ansi[i] }};
+{% endfor %}

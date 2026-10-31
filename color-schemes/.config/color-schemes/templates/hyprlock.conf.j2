@@ -1,0 +1,8 @@
+# {{ scheme_name }}: generated from schemes/{{ scheme_slug }}/{{ scheme_variant }}.yaml; do not edit.
+# Sourced by hyprlock.conf.
+$bg      = {{ roles.bg | hypr() }}
+$fg      = {{ roles.text | hypr() }}
+$muted   = {{ roles.muted | hypr() }}
+$accent  = {{ roles.accent | hypr('ee') }}
+$success = {{ roles.success | hypr('ee') }}
+$error   = {{ roles.error | hypr('ee') }}

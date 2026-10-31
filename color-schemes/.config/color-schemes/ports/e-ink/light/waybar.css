@@ -1,0 +1,29 @@
+/* E-Ink: generated from schemes/e-ink/light.yaml; do not edit. */
+@define-color foreground #474747;
+@define-color background #cccccc;
+@define-color background-alt #c2c2c2;
+@define-color selection #aeaeae;
+@define-color muted #5e5e5e;
+@define-color accent #474747;
+@define-color error #333333;
+@define-color warning #868686;
+@define-color success #9a9a9a;
+@define-color info #4a4a4a;
+@define-color cursor #474747;
+
+@define-color color0 #cccccc;
+@define-color color1 #333333;
+@define-color color2 #9a9a9a;
+@define-color color3 #868686;
+@define-color color4 #727272;
+@define-color color5 #aeaeae;
+@define-color color6 #4a4a4a;
+@define-color color7 #474747;
+@define-color color8 #5e5e5e;
+@define-color color9 #333333;
+@define-color color10 #9a9a9a;
+@define-color color11 #868686;
+@define-color color12 #727272;
+@define-color color13 #aeaeae;
+@define-color color14 #4a4a4a;
+@define-color color15 #7c7c7c;

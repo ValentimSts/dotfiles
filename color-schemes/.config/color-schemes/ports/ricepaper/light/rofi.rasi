@@ -1,0 +1,9 @@
+/* Ricepaper e-ink: generated from schemes/ricepaper/light.yaml; do not edit. */
+* {
+    background:                  #cccccc;
+    background-alt:              #c6c6c6;
+    foreground:                  #333333;
+    selected:                    #333333;
+    active:                      #8da101;
+    urgent:                      #f85552;
+}

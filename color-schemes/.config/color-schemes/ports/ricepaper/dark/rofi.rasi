@@ -1,0 +1,9 @@
+/* Ricepaper e-ink Dark: generated from schemes/ricepaper/dark.yaml; do not edit. */
+* {
+    background:                  #333333;
+    background-alt:              #2c2c2c;
+    foreground:                  #cccccc;
+    selected:                    #cccccc;
+    active:                      #a7c080;
+    urgent:                      #e67e80;
+}
