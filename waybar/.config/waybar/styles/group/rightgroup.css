@@ -7,11 +7,6 @@
 @import url("./power.css");
 
 #rightgroup {
-  margin: 10 5 10 10;
-  padding: 5 10;
-  border-radius: 16px;
-}
-
-#rightgroup:hover {
-  background-color: @muted;
+  margin: 0;
+  padding: 0;
 }

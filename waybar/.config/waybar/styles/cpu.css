@@ -1,8 +1,9 @@
 @import url("../palette.css");
 
 #cpu {
-  margin: 5 20 5 5;
+  margin: 0;
+  padding: 4px 14px;
+  border: 2px solid @background;
+  border-left-width: 0;
   color: @background;
 }
-
-

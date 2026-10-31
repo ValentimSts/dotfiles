@@ -1,6 +1,8 @@
 @import url("../palette.css");
 
 #clock {
-  margin: 10;
+  margin: 0;
+  padding: 4px 18px;
+  border: 2px solid @background;
   color: @background;
 }

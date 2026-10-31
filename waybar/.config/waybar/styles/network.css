@@ -1,6 +1,9 @@
 @import url("../palette.css");
 
 #network {
-  margin-right: 22;
+  margin: 0;
+  padding: 4px 14px;
+  border: 2px solid @background;
+  border-left-width: 0;
   color: @background;
 }

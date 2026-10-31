@@ -6,32 +6,36 @@
 @import url("styles/group/hardware.css");
 @import url("styles/group/rightgroup.css");
 
+/* Paper: the bar is drawn inverted (text colour as background, background
+   colour as text) and every module sits in a 2 px ruled box with square
+   corners; adjacent boxes share their rule. */
+
 * {
   border-radius: 0px;
   min-height: 0;
   font-family: "RobotoMono Nerd Font";
-  font-weight: 500;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 1px;
 }
 
 window#waybar {
-  background: @foreground; /* inverted bar: text colour as background */
-  border-radius: 0px 0px 8px 8px;
+  background: @foreground;
+  color: @background;
+  border-bottom: 2px solid @background;
 }
 
-.modules-left {
-  padding: 5;
-}
-
-.modules-center {
-  padding: 5;
-}
-
+.modules-left,
+.modules-center,
 .modules-right {
-  padding: 5;
+  margin: 8px 12px;
 }
 
 tooltip {
   background-color: @foreground;
-  border: 2px solid @muted;
+  border: 2px solid @background;
+}
+
+tooltip label {
+  color: @background;
 }

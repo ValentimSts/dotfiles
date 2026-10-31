@@ -9,7 +9,8 @@
     "~/.config/waybar/modules/battery.jsonc",
     "~/.config/waybar/modules/network.jsonc",
     "~/.config/waybar/modules/pulseaudio.jsonc",
-    "~/.config/waybar/modules/backlight.jsonc"
+    "~/.config/waybar/modules/backlight.jsonc",
+    "~/.config/waybar/modules/custom/power.jsonc"
   ],
 
   "group/rightgroup": {

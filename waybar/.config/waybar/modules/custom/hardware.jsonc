@@ -6,7 +6,7 @@
 
 {
     "custom/hardware": {
-        "format": "Hardware",
+        "format": "HARDWARE",
         "tooltip": false
     }
 }

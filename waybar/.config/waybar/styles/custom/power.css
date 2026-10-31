@@ -1,10 +1,14 @@
 @import url("../../palette.css");
 
 #custom-power {
-    padding: 10px;
-    color: @background;
+  margin: 0;
+  padding: 4px 14px;
+  border: 2px solid @background;
+  border-left-width: 0;
+  background-color: @background;
+  color: @foreground;
 }
 
 #custom-power:hover {
-    color: @muted;
+  color: @muted;
 }

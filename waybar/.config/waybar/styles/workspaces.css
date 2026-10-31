@@ -2,28 +2,32 @@
 
 #workspaces {
   background-color: transparent;
-  margin: 10;
+  margin: 0;
 }
 
 #workspaces button {
   all: initial;
   min-width: 0;
-  box-shadow: inset 0 -3px transparent;
-  padding: 2px 8px;
-  color: @background-alt;
+  padding: 4px 12px;
+  border: 2px solid @background;
+  border-left-width: 0;
+  color: @background;
+}
+
+#workspaces button:first-child {
+  border-left-width: 2px;
 }
 
 #workspaces button.empty {
-  color: @subtle;
+  color: @muted;
 }
 
 #workspaces button.active {
-  color: @foreground;
   background-color: @background;
-  border-radius: 4px;
+  color: @foreground;
 }
 
 #workspaces button.urgent {
-  color: @background;
   background-color: @error;
+  color: @background;
 }
