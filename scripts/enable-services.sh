@@ -19,6 +19,8 @@ done
 SYSTEM_COMMON=(NetworkManager bluetooth tlp)
 SYSTEM_GNOME=(gdm)
 USER_COMMON=(pipewire pipewire-pulse wireplumber)
+# hypridle and waybar ship their units; awww-daemon's lives in the systemd package.
+USER_HYPRLAND=(awww-daemon hypridle waybar)
 
 enable_system() { for s in "$@"; do run sudo systemctl enable --now "$s"; done; }
 enable_user()   { for s in "$@"; do run systemctl --user enable --now "$s"; done; }
@@ -31,8 +33,10 @@ case "$profile" in
     enable_system "${SYSTEM_GNOME[@]}"
     ;;
   hyprland)
-    # Hyprland starts waybar and hyprland-session.target itself (see hyprland.lua).
+    # graphical-session.target pulls these in once hyprland.lua starts
+    # hyprland-session.target; outside a session only the enable part applies.
     run systemctl --user daemon-reload
+    enable_user "${USER_HYPRLAND[@]}"
     if command -v libinput-gestures-setup >/dev/null 2>&1; then
       run libinput-gestures-setup autostart
     fi

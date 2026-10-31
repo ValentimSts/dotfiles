@@ -1,0 +1,16 @@
+[Unit]
+Description=awww wallpaper daemon
+Documentation=https://codeberg.org/LGFae/awww
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/awww-daemon
+# Reapply the last wallpaper once the daemon is up, also after a crash restart.
+ExecStartPost=%h/.local/bin/wallpaper-picker --restore
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

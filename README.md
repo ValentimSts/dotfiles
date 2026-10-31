@@ -36,7 +36,7 @@ to `~/.config/kitty/kitty.conf`.
 | --- | --- |
 | common | `bash` `starship` `git` `gh` `kitty` `nvim` `neofetch` `vscode` `xdg` `color-schemes` `wallpapers` |
 | gnome | common |
-| hyprland | common + `hypr` `waybar` `rofi` `eww` `waypaper` `libinput-gestures` `systemd` |
+| hyprland | common + `hypr` `waybar` `rofi` `eww` `libinput-gestures` `systemd` |
 
 ## Day-to-day
 
@@ -124,7 +124,7 @@ and Neovim plugins such as smart-splits can drive windows from outside.
 | `super+space` | App launcher (rofi) |
 | `super+e` | File manager (nautilus) |
 | `super+f` | Browser (brave) |
-| `super+w` | Wallpaper picker (waypaper) |
+| `super+w` | Wallpaper picker (rofi, applied with awww) |
 | `super+c` | Close window |
 | `super+v` | Toggle floating |
 | `super+p` | Pseudotile (dwindle) |

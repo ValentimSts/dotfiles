@@ -10,7 +10,7 @@ BACKUP_DIR="${BACKUP_DIR:-$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)}"
 # Stow package sets. "common" applies to every profile.
 PKGS_COMMON=(bash starship git gh kitty nvim neofetch vscode xdg color-schemes wallpapers)
 PKGS_GNOME=()
-PKGS_HYPRLAND=(hypr waybar rofi eww waypaper libinput-gestures systemd)
+PKGS_HYPRLAND=(hypr waybar rofi eww libinput-gestures systemd)
 
 if [ -t 1 ]; then
   C_RESET=$'\033[0m'; C_INFO=$'\033[1;34m'; C_OK=$'\033[1;32m'

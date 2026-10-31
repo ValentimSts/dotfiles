@@ -1,6 +1,7 @@
 7zip
 amd-ucode
 android-tools
+awww
 baobab
 base
 base-devel
@@ -72,7 +73,6 @@ gvfs-wsdd
 hypridle
 hyprland
 hyprlock
-hyprpaper
 hyprpicker
 hyprshot
 hyprsunset
@@ -127,7 +127,6 @@ pipewire-pulse
 pnpm
 powertop
 python-pip
-python-pipx
 qemu-full
 ripgrep
 rofi

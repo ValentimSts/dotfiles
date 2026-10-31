@@ -41,7 +41,7 @@ local terminal    = "kitty"
 local fileManager = "nautilus"
 local menu        = "rofi -show drun"
 local browser     = "brave"
-local wallSetter  = "~/.local/bin/waypaper"
+local wallSetter  = "~/.local/bin/wallpaper-picker"
 
 
 -------------------
@@ -53,11 +53,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("swaync")
     hl.exec_cmd("nm-applet --indicator")
     hl.exec_cmd("blueman-applet")
-    hl.exec_cmd("hypridle")
-    hl.exec_cmd("hyprpaper")
-    hl.exec_cmd("waypaper --restore")
 
-    -- waybar runs as a user service; the session target pulls in the rest
+    -- waybar, hypridle and awww-daemon (wallpaper) are user services pulled in
+    -- by graphical-session.target when the session target starts
     hl.exec_cmd("systemctl --user enable --now waybar")
     hl.exec_cmd("systemctl --user start hyprland-session.target")
 end)

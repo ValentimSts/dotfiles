@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# wallpaper-picker: pick a wallpaper with rofi and apply it with awww.
+#
+# Usage: wallpaper-picker            choose from $WALLPAPER_DIR in rofi
+#        wallpaper-picker --set FILE apply FILE
+#        wallpaper-picker --restore  reapply the last choice (run at login)
+#
+# The last applied path is kept in $XDG_STATE_HOME/wallpaper so --restore
+# survives reboots and awww-daemon restarts.
+
+set -o errexit -o nounset -o pipefail
+
+dir="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/wallpaper"
+transition="${WALLPAPER_TRANSITION:-fade}"
+
+die() { printf 'wallpaper-picker: %s\n' "$*" >&2; exit 1; }
+
+# awww-daemon is started by systemd; give it a moment to open its socket.
+wait_for_daemon() {
+  local i
+  for i in $(seq 1 50); do
+    if awww query >/dev/null 2>&1; then return 0; fi
+    sleep 0.1
+  done
+  die "awww-daemon is not running"
+}
+
+apply() {
+  local file="$1"
+  [ -f "$file" ] || die "no such file: $file"
+  wait_for_daemon
+  awww img "$file" --transition-type "$transition"
+  mkdir -p "$(dirname "$state")"
+  printf '%s\n' "$file" > "$state"
+}
+
+# Image files directly under $dir, by name. -H follows $dir when stow made it a symlink.
+list() {
+  find -H "$dir" -maxdepth 1 -type f \
+    \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.gif' \) \
+    -printf '%f\n' | sort
+}
+
+pick() {
+  local choice
+  choice="$(list | rofi -dmenu -i -p 'wallpaper')" || exit 0
+  [ -n "$choice" ] || exit 0
+  apply "$dir/$choice"
+}
+
+restore() {
+  local last="" first
+  if [ -r "$state" ]; then last="$(<"$state")"; fi
+  if [ -n "$last" ] && [ -f "$last" ]; then
+    apply "$last"
+    return
+  fi
+  first="$(list | head -n 1)"
+  [ -n "$first" ] || die "no wallpapers in $dir"
+  apply "$dir/$first"
+}
+
+case "${1:-}" in
+  "") pick ;;
+  --set) [ $# -eq 2 ] || die "usage: wallpaper-picker --set FILE"; apply "$2" ;;
+  --restore) restore ;;
+  -h|--help) sed -n '2,9p' "$0" ;;
+  *) die "unknown argument: $1" ;;
+esac
