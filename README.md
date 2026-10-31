@@ -95,8 +95,7 @@ chosen ports, (re)creates the per-app links the configs import
 (`waybar/palette.css`, `rofi/colors.rasi`, `hypr/colors.lua`,
 `hypr/colors-hyprlock.conf`, `eww/_colors.scss`), sets the desktop colour
 scheme, and reloads kitty, waybar, Hyprland and eww. Kitty and Neovim pick
-dark or light themselves. Schemes: `orange-peel`, `e-ink`, `ricepaper`
-(`earl-grey` is still a plain kitty file).
+dark or light themselves. Schemes: `orange-peel`, `e-ink`, `ricepaper`.
 
 ## Shortcuts
 
