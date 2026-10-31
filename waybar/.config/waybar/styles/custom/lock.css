@@ -1,9 +1,9 @@
 @import url("../../palette.css");
 
 #custom-lock {
-    color: @color7;
+    color: @background;
 }
 
 #custom-lock:hover {
-    color: @color15;
+    color: @muted;
 }

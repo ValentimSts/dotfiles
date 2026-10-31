@@ -13,5 +13,5 @@
 }
 
 #rightgroup:hover {
-  background-color: @color4;
+  background-color: @muted;
 }

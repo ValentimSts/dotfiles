@@ -3,7 +3,7 @@
 #tray {
   margin: 6px 6px 6px 0px;
   padding: 10px;
-  background-color: @color2;
-  border: 2px solid @color1;
-  color: @color7;
+  background-color: @background;
+  border: 2px solid @muted;
+  color: @foreground;
 }

@@ -1,9 +1,9 @@
 @import url("../../palette.css");
 
 #custom-quit {
-    color: @color7;
+    color: @background;
 }
 
 #custom-quit:hover {
-    color: @color15;
+    color: @muted;
 }

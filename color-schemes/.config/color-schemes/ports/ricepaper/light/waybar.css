@@ -4,6 +4,7 @@
 @define-color background-alt #c6c6c6;
 @define-color selection #aeaeae;
 @define-color muted #909090;
+@define-color subtle #545454;
 @define-color accent #333333;
 @define-color error #f85552;
 @define-color warning #dfa000;

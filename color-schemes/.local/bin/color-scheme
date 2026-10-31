@@ -73,12 +73,14 @@ reload_apps() {
     gsettings set org.gnome.desktop.interface color-scheme "prefer-$mode" 2>/dev/null || true
   fi
   pkill -SIGUSR1 -x kitty 2>/dev/null || true   # re-read kitty.conf and its includes
-  # Windows keep colours set through remote control across reloads; drop those
-  # overrides so the configured scheme shows. Sockets are listen_on plus the pid.
+  # Then push the chosen port into every running kitty explicitly: windows keep
+  # colours set through remote control across reloads, and the auto dark/light
+  # pick is async. Sockets are listen_on plus the pid.
   if command -v kitten >/dev/null 2>&1 && command -v ss >/dev/null 2>&1; then
     local sock
+    sleep 0.3
     for sock in $(ss -xl 2>/dev/null | grep -o '@kitty-[0-9]*' | sort -u); do
-      kitten @ --to "unix:$sock" set-colors --all --configured --reset >/dev/null 2>&1 || true
+      kitten @ --to "unix:$sock" set-colors --all --configured "$state/active/kitty.conf" >/dev/null 2>&1 || true
     done
   fi
   pkill -SIGUSR2 -x waybar 2>/dev/null || true  # re-read style.css

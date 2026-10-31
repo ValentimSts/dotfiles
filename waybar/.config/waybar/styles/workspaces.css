@@ -10,19 +10,20 @@
   min-width: 0;
   box-shadow: inset 0 -3px transparent;
   padding: 2px 8px;
-  color: @color5;
+  color: @background-alt;
 }
 
 #workspaces button.empty {
-  color: @color7;
+  color: @subtle;
 }
 
 #workspaces button.active {
-  color: @color0;
-  background-color: @color1;
+  color: @foreground;
+  background-color: @background;
   border-radius: 4px;
 }
 
 #workspaces button.urgent {
-  background-color: @color9;
+  color: @background;
+  background-color: @error;
 }

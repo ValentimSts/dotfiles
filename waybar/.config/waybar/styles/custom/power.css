@@ -2,9 +2,9 @@
 
 #custom-power {
     padding: 10px;
-    color: @color7;
+    color: @background;
 }
 
 #custom-power:hover {
-    color: @color15;
+    color: @muted;
 }
