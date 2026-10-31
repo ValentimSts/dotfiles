@@ -116,7 +116,7 @@ and Neovim plugins such as smart-splits can drive windows from outside.
 
 ### Hyprland
 
-`SUPER` is the main modifier. Defined in `hypr/.config/hypr/hyprland.conf`.
+`SUPER` is the main modifier. Defined in `hypr/.config/hypr/hyprland.lua`.
 
 | Keys | Action |
 | --- | --- |

@@ -31,7 +31,7 @@ case "$profile" in
     enable_system "${SYSTEM_GNOME[@]}"
     ;;
   hyprland)
-    # Hyprland starts waybar and hyprland-session.target itself (see hyprland.conf).
+    # Hyprland starts waybar and hyprland-session.target itself (see hyprland.lua).
     run systemctl --user daemon-reload
     if command -v libinput-gestures-setup >/dev/null 2>&1; then
       run libinput-gestures-setup autostart
