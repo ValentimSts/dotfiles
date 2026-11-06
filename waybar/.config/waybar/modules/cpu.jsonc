@@ -6,7 +6,7 @@
 
 {
   "cpu": {
-    "format": "cpu {usage}%",
+    "format": "󰻠 {usage}%",
     "interval": 2,
 
     "states": {

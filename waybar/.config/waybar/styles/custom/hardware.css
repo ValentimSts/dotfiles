@@ -2,7 +2,6 @@
 
 #custom-hardware {
   margin: 0;
-  padding: 4px 14px;
-  border: 2px solid @background;
-  color: @muted;
+  padding: 0 12px;
+  color: alpha(@background, 0.5);
 }

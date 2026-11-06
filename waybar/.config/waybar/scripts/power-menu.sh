@@ -1,14 +1,7 @@
 #!/usr/bin/env bash
-# Power menu for the waybar power button: a rofi list anchored under the
-# button (rofi/power.rasi). Labels keep their icon glyph, so match on the word.
+# Power menu for the waybar power button: toggles the eww power-menu window
+# (eww/eww.yuck) together with popup-closer, the transparent full-screen
+# window that dismisses the menu on a click outside it. The eww daemon runs
+# as the eww user service.
 
-choices="Shutdown\n Reboot\n Suspend\n Logout"
-
-chosen=$(printf '%b\n' "$choices" | rofi -dmenu -i -no-custom -p "Power" -theme ~/.config/rofi/power.rasi)
-
-case "$chosen" in
-    *Shutdown) systemctl poweroff ;;
-    *Reboot)   systemctl reboot ;;
-    *Suspend)  systemctl suspend ;;
-    *Logout)   hyprctl dispatch exit ;;
-esac
+exec eww open-many --toggle popup-closer power-menu

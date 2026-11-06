@@ -1,0 +1,19 @@
+// ------------------
+//
+//  Keyboard Layout
+//
+// ------------------
+
+{
+  "hyprland/language": {
+    "format": "{}",
+    "min-length": 3,
+    "align": 0.5,
+    "tooltip": false,
+    "format-en": "US",
+    "format-pt": "PT",
+    // Layouts are per keyboard; a mouse reconnecting would otherwise flip this.
+    "keyboard-name": "at-translated-set-2-keyboard",
+    "on-click": "hyprctl switchxkblayout at-translated-set-2-keyboard next"
+  }
+}

@@ -7,6 +7,7 @@
 {
   "clock": {
     "format": "{:%a  %b %d  %H:%M}",
-    "tooltip": false
+    "tooltip": false,
+    "on-click": "~/.config/waybar/scripts/calendar.sh"
   }
 }

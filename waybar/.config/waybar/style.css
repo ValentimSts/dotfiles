@@ -13,22 +13,42 @@
 * {
   border-radius: 0px;
   min-height: 0;
-  font-family: "RobotoMono Nerd Font";
+  /* Propo: icon glyphs get an advance that matches their ink, so icon-only
+     modules centre; the text glyphs are still Roboto Mono. */
+  font-family: "RobotoMono Nerd Font Propo";
   font-weight: 700;
-  font-size: 16px;
+  font-size: 17px;
   letter-spacing: 1px;
 }
 
+/* The bar's fill lives on the root box, not the window: GTK marks a window
+   with an opaque background as fully opaque, so anything outside a rounded
+   corner would be painted black instead of showing the wallpaper. */
 window#waybar {
-  background: @foreground;
+  background: transparent;
   color: @background;
+}
+
+window#waybar > box {
+  background: alpha(@foreground, 0.85);
   border-bottom: 2px solid @background;
+  /* Overrides the square-corner `*` rule above for the bar itself. */
+  border-radius: 0 0 12px 12px;
 }
 
 .modules-left,
 .modules-center,
 .modules-right {
-  margin: 8px 12px;
+  padding: 7px;
+  margin: 8px 0;
+}
+
+.modules-left {
+  margin-left: 10px;
+}
+
+.modules-right {
+  margin-right: 10px;
 }
 
 tooltip {
@@ -39,3 +59,49 @@ tooltip {
 tooltip label {
   color: @background;
 }
+
+/* Hover: a faint wash behind the module, a pill for text modules and a
+   circle for icon-only ones. The icon-only modules are given a square box
+   (30 x 30 px) and carry their spacing as margin,
+   so the circle is round. Workspace dots brighten instead, since their
+   brightness is their state. */
+#clock, #custom-hardware, #cpu, #memory, #language,
+#battery, #network, #backlight, #pulseaudio, #custom-power,
+#workspaces button {
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+/* The radius is always on and only the wash fades, so leaving a module
+   never shows a square mid-transition. */
+#clock, #cpu, #memory, #language, #battery, #backlight, #pulseaudio {
+  border-radius: 999px;
+}
+
+#clock:hover, #cpu:hover, #memory:hover, #language:hover,
+#battery:hover, #backlight:hover, #pulseaudio:hover {
+  background-color: alpha(@background, 0.15);
+}
+
+#custom-hardware, #network, #custom-power {
+  /* label is 24 px tall; 3 px of vertical padding and a 30 px content width
+     make a 30 x 30 box for the circle */
+  padding: 3px 0;
+  min-width: 30px;
+  margin: 0 7px;
+  border-radius: 50%;
+}
+
+/* Custom modules are eventbox > box > label#custom-x, and Waybar sets the
+   hover state on the box, so #custom-x:hover never matches: the box is hovered
+   but unnamed, the label is named but not hovered. */
+#network:hover,
+box:hover > #custom-hardware,
+box:hover > #custom-power {
+  background-color: alpha(@background, 0.15);
+}
+
+#workspaces button:hover {
+  background-color: alpha(@background, 0.15);
+  color: @background;
+}
+
