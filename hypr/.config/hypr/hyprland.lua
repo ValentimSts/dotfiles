@@ -108,7 +108,7 @@ hl.config({
         rounding       = 5,
         rounding_power = 2,
 
-        active_opacity   = 0.8,
+        active_opacity   = 0.95,
         inactive_opacity = 0.7,
 
         shadow = {
@@ -318,4 +318,32 @@ hl.window_rule({
     },
 
     no_focus = true,
+})
+
+hl.layer_rule({
+    -- Blur the wallpaper behind the translucent bar. ignore_alpha keeps the
+    -- fully transparent rounded corners from being blurred too.
+    name  = "blur-waybar",
+    match = { namespace = "^waybar$" },
+
+    blur         = true,
+    ignore_alpha = 0,
+})
+
+hl.layer_rule({
+    name  = "blur-eww-popups",
+    match = { namespace = "^eww-(power-menu|calendar|quick-settings|keyboard-osd)$" },
+
+    blur         = true,
+    ignore_alpha = 0,
+})
+
+hl.layer_rule({
+    -- These panels slide sections open by growing the window. Animating the
+    -- window's box as well draws the taller content squeezed into the smaller
+    -- box, which squashes the whole panel for the length of the slide.
+    name  = "no-anim-eww-sliding-panels",
+    match = { namespace = "^eww-(calendar|quick-settings)$" },
+
+    no_anim = true,
 })
