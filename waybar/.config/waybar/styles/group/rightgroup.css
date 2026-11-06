@@ -1,5 +1,6 @@
 @import url("../../palette.css");
 
+@import url("../language.css");
 @import url("../battery.css");
 @import url("../network.css");
 @import url("../backlight.css");

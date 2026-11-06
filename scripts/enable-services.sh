@@ -19,8 +19,8 @@ done
 SYSTEM_COMMON=(NetworkManager bluetooth tlp)
 SYSTEM_GNOME=(gdm)
 USER_COMMON=(pipewire pipewire-pulse wireplumber)
-# hypridle and waybar ship their units; awww-daemon's lives in the systemd package.
-USER_HYPRLAND=(awww-daemon hypridle waybar)
+# hypridle and waybar ship their units; awww-daemon's, eww's and keyboard-osd's live in the systemd package.
+USER_HYPRLAND=(awww-daemon eww hypridle keyboard-osd waybar)
 
 enable_system() { for s in "$@"; do run sudo systemctl enable --now "$s"; done; }
 enable_user()   { for s in "$@"; do run systemctl --user enable --now "$s"; done; }

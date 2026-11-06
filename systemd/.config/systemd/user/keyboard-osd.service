@@ -1,0 +1,15 @@
+[Unit]
+Description=Show the keyboard layout on screen when it changes
+PartOf=graphical-session.target
+After=graphical-session.target eww.service
+Wants=eww.service
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=%h/.config/eww/scripts/keyboard-osd.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

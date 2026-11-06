@@ -8,23 +8,23 @@
 #workspaces button {
   all: initial;
   min-width: 0;
-  padding: 4px 12px;
-  border: 2px solid @background;
-  border-left-width: 0;
-  color: @background;
+  color: alpha(@background, 0.75);
+  /* 30 x 31 box so the hover wash is a circle; the extra pixel on top is the
+     glyph-metrics nudge that keeps the dot centred. */
+  padding: 4px 7px 3px;
+  border-radius: 50%;
+  transition: background-color 150ms ease, color 150ms ease;
 }
 
-#workspaces button:first-child {
-  border-left-width: 2px;
-}
-
+/* Empty workspaces stay visible as dim dots; @muted is nearly the bar colour. */
 #workspaces button.empty {
-  color: @muted;
+  color: alpha(@background, 0.12);
 }
 
+/* Active uses the ringed-dot glyph set in workspaces.jsonc at full brightness;
+   occupied and empty ones are plain dots at two brightness levels. */
 #workspaces button.active {
-  background-color: @background;
-  color: @foreground;
+  color: @background;
 }
 
 #workspaces button.urgent {

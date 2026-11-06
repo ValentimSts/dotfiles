@@ -6,43 +6,13 @@
 
 {
   "network": {
-    "format-wifi" : " ",
+    "format-wifi": "󰖩",
     "format-ethernet": "󰈀",
-    "format-disconnected" : "",
+    "format-disconnected": "󰖪",
     "interval": 10,
-    "tooltip": false,
-    "format-icons": [
-      "󰣾",  
-      "󰣴",  
-      "󰣶",  
-      "󰣸",
-      "󰣺"
-    ]
-         
-    /**    
-    "format-icons": [
-      "󰤯", 
-      "󰤟", 
-      "󰤢",
-      "󰤥",
-      "󰤨"
-    ]
-    **/
-
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)",
+    "tooltip-format-ethernet": "{ifname} 󰈀",
+    "tooltip-format-disconnected": "Disconnected",
+    "on-click": "~/.config/waybar/scripts/control-panel.sh"
   }
 }
-
-
-/**
-
-"network": {
-  "format-wifi": "",
-  "format-ethernet":"",
-  "format-disconnected": "",
-  "tooltip-format-disconnected": "Error",
-  "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
-  "tooltip-format-ethernet": "{ifname} 🖧 ",
-  "on-click": "kitty nmtui"
-},
-
-**/

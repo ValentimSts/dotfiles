@@ -11,14 +11,13 @@
     "format-muted": " {volume:03d}%",
     "format-icons": {
       "headphone": "",
-      "hands-free": "",
-      "headset": "",
-      "phone": "",
-      "portable": "",
-      "car": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "󰏲",
+      "portable": "󰏲",
+      "car": "󰄋",
       "default": ["", "", ""]
-    }
-    // "on-click": "pavucontrol"
+    },
+    "on-click": "~/.config/waybar/scripts/control-panel.sh"
   }
 }
-

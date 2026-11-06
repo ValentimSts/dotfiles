@@ -1,99 +1,388 @@
 ; ============================================
-; Control Panel - Variables
+; Power Menu
 ; ============================================
+; Opened by waybar's power button (waybar/scripts/power-menu.sh) together
+; with popup-closer.
 
-; Polling variables for system state
-(defpoll volume :interval "1s"
-  "pamixer --get-volume 2>/dev/null || echo 50")
+(defwidget power-item [icon label cmd class]
+  (button :class "power-item ${class}"
+          :onclick "eww close power-menu popup-closer; ${cmd}"
+    (box :orientation "h"
+         :space-evenly false
+         :spacing 12
+      (label :class "power-icon" :text icon)
+      (label :class "power-label" :text label :halign "start"))))
 
-(defpoll brightness :interval "1s"
-  "brightnessctl -m 2>/dev/null | awk -F',' '{print $4}' | tr -d '%' || echo 50")
-
-(defpoll wifi-status :interval "2s"
-  "nmcli radio wifi 2>/dev/null || echo disabled")
-
-(defpoll wifi-ssid :interval "5s"
-  "nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2 || echo 'Not connected'")
-
-(defpoll bluetooth-status :interval "2s"
-  "bluetoothctl show 2>/dev/null | grep 'Powered:' | awk '{print $2}' || echo no")
-
-; ============================================
-; Control Panel - Widget
-; ============================================
-
-(defwidget control-panel []
-  (box :class "control-panel"
+(defwidget power-menu []
+  (box :class "power-menu"
        :orientation "v"
        :space-evenly false
-       :spacing 15
-    
-    ; Volume Row: icon | percentage | slider
-    (box :class "slider-row"
-         :orientation "h"
-         :space-evenly false
-         :spacing 5
-      (label :class "icon" :text "󰕾")
-      (label :class "value" :text "${volume}%")
-      (scale :class "slider volume-slider"
-             :hexpand true
-             :min 0
-             :max 100
-             :value volume
-             :onchange "pamixer --set-volume {}"))
-    
-    ; Brightness Row: icon | percentage | slider
-    (box :class "slider-row"
-         :orientation "h"
-         :space-evenly false
-         :spacing 5
-      (label :class "icon" :text "󰃟")
-      (label :class "value" :text "${brightness}%")
-      (scale :class "slider brightness-slider"
-             :hexpand true
-             :min 1
-             :max 100
-             :value brightness
-             :onchange "brightnessctl set {}%"))
-    
-    ; Toggles Section
-    (box :class "toggles"
-         :orientation "h"
-         :space-evenly true
-         :spacing 10
-      
-      ; WiFi Toggle
-      (button :class "toggle ${wifi-status == 'enabled' ? 'active' : ''}"
-              :onclick "if nmcli radio wifi | grep -q enabled; then nmcli radio wifi off; else nmcli radio wifi on; fi"
-              :tooltip "${wifi-status == 'enabled' ? wifi-ssid : 'WiFi Off'}"
-        (box :orientation "v"
-             :space-evenly false
-             :spacing 5
-          (label :class "toggle-icon" :text "${wifi-status == 'enabled' ? '󰤨' : '󰤭'}")
-          (label :class "toggle-label" :text "WiFi")))
-      
-      ; Bluetooth Toggle
-      (button :class "toggle ${bluetooth-status == 'yes' ? 'active' : ''}"
-              :onclick "if bluetoothctl show | grep -q 'Powered: yes'; then bluetoothctl power off; else bluetoothctl power on; fi"
-              :tooltip "${bluetooth-status == 'yes' ? 'Bluetooth On' : 'Bluetooth Off'}"
-        (box :orientation "v"
-             :space-evenly false
-             :spacing 5
-          (label :class "toggle-icon" :text "${bluetooth-status == 'yes' ? '󰂯' : '󰂲'}")
-          (label :class "toggle-label" :text "Bluetooth"))))))
+    (power-item :icon "⏻" :label "Shutdown" :class "shutdown" :cmd "systemctl poweroff")
+    (power-item :icon "󰜉" :label "Reboot"   :class "reboot"   :cmd "systemctl reboot")
+    (power-item :icon "󰤄" :label "Suspend"  :class "suspend"  :cmd "systemctl suspend")
+    (power-item :icon "󰍃" :label "Logout"   :class "logout"   :cmd "hyprctl dispatch exit")))
 
-; ============================================
-; Control Panel - Window
-; ============================================
+; A transparent full-screen window shared by the popups: it dismisses them on
+; a click anywhere outside. Closing lists every popup, since eww skips the ones
+; that are not open. Hyprland places this window below the bar's exclusive zone
+; and eww cannot opt out of it, so a negative margin pulls it back up over the
+; bar. 100 px clears the bar at any height; the extra 10% height makes up for
+; it at the bottom of the screen.
+(defwindow popup-closer
+           :monitor 0
+           :geometry (geometry :x "0px"
+                               :y "-100px"
+                               :width "100%"
+                               :height "110%"
+                               :anchor "top left")
+           :stacking "overlay"
+           :namespace "eww-popup-closer"
+  (eventbox :onclick "eww close power-menu calendar quick-settings popup-closer"
+    (box :class "popup-closer")))
 
-(defwindow control-panel
+; x matches the bar's 10 px edge margin; the bar's exclusive zone puts y 0 at
+; its bottom edge, so y is the gap below it.
+(defwindow power-menu
            :monitor 0
            :geometry (geometry :x "10px"
-                               :y "10px"
-                               :width "275px"
-                               :height "200px"
+                               :y "8px"
+                               :width "200px"
                                :anchor "top right")
            :stacking "overlay"
-           :windowtype "dialog"
-           :wm-ignore true
-  (control-panel))
+           :namespace "eww-power-menu"
+  (power-menu))
+
+; ============================================
+; Calendar
+; ============================================
+; Opened by waybar's clock (waybar/scripts/calendar.sh) together with
+; popup-closer. scripts/calendar-month.py fills `cal`, one month at a time.
+; Clicking a day runs scripts/calendar-select.sh, which fills `cal-agenda` from
+; scripts/calendar-agenda.py and slides it open by setting `cal-selected`.
+; scripts/calendar-goto.sh changes month: `cal` is the month on show, and the
+; grid's two stack pages hold it and the one being slid to or from.
+
+(defvar cal "{}")
+(defvar cal-page 0)
+(defvar cal-page-0 '{"weeks": []}')
+(defvar cal-page-1 '{"weeks": []}')
+(defvar cal-transition "none")
+(defvar cal-selected "")
+(defvar cal-agenda '{"title": "", "events": [], "notice": ""}')
+
+; Keeps the calendars connected so a click answers in 0.1 s rather than 1 s. It
+; prints nothing, so it is empty in the class below; that reference is what makes
+; eww run it for exactly as long as the window is open.
+(deflisten cal-connections "~/.config/eww/scripts/calendar-agenda.py --hold")
+
+(defwidget calendar-nav [offset class ?halign]
+  (button :class "calendar-nav ${class}"
+          :halign {halign ?: "fill"}
+          :onclick "~/.config/eww/scripts/calendar-goto.sh ${offset} ${cal.offset}"
+          :timeout "2s"
+    (children)))
+
+(defwidget calendar-event [event]
+  (box :class "calendar-event"
+       :orientation "v"
+       :space-evenly false
+    (label :class "calendar-event-title"
+           :halign "start"
+           :limit-width 28
+           :text {event.title})
+    (label :class "calendar-event-detail"
+           :halign "start"
+           :limit-width 34
+           :text {event.detail})))
+
+; A `for` re-adds its children at the end of its parent whenever its data
+; changes, so it gets a box of its own to keep its place in the panel.
+(defwidget calendar-grid [month]
+  (box :orientation "v"
+       :space-evenly false
+    (for week in {month.weeks}
+      (box :class "calendar-row"
+        (for day in week
+          (button :class "calendar-day ${day.cls} ${cal-selected == day.iso ? 'selected' : ''}"
+                  :halign "center"
+                  :valign "center"
+                  :onclick "~/.config/eww/scripts/calendar-select.sh ${day.iso} ${day.offset} ${cal.offset}"
+                  :timeout "8s"
+            (label :text {day.n})))))))
+
+(defwidget calendar-popup []
+  (box :class "calendar${cal-connections}"
+       :orientation "v"
+       :space-evenly false
+    ; centerbox keeps the title on the panel's centre line whatever the width of
+    ; the month's name. The title itself is the way back to the current month.
+    (centerbox :class "calendar-header"
+               :orientation "h"
+      (calendar-nav :offset {cal.offset - 1} :class "calendar-arrow" :halign "start"
+        (label :text ""))
+      (calendar-nav :offset 0 :class "calendar-title ${cal.offset == 0 ? 'here' : ''}"
+        (box :orientation "h"
+             :space-evenly false
+          (label :class "calendar-month" :text {cal.month})
+          (label :class "calendar-year" :text {cal.year})))
+      (calendar-nav :offset {cal.offset + 1} :class "calendar-arrow" :halign "end"
+        (label :text "")))
+    (box :class "calendar-row"
+      (for letter in {cal.weekdays}
+        (label :class "calendar-weekday" :text letter)))
+    (stack :selected {cal-page}
+           :transition {cal-transition}
+           :same-size true
+      (calendar-grid :month {cal-page-0})
+      (calendar-grid :month {cal-page-1}))
+    (revealer :transition "slidedown"
+              :reveal {cal-selected != ""}
+              :duration "250ms"
+      (box :class "calendar-agenda"
+           :orientation "v"
+           :space-evenly false
+        (label :class "calendar-agenda-title"
+               :halign "start"
+               :text {cal-agenda.title})
+        (box :orientation "v"
+             :space-evenly false
+          (for event in {cal-agenda.events}
+            (calendar-event :event event)))
+        ; Centred when it stands in for the events, left under a list of them.
+        ; A revealer rather than :visible, because a label built hidden stays
+        ; hidden the first time it should appear.
+        (revealer :reveal {cal-agenda.notice != ""}
+                  :transition "none"
+                  :duration "0ms"
+                  :halign {arraylength(cal-agenda.events) == 0 ? "center" : "start"}
+          (label :class "calendar-agenda-notice"
+                 :text {cal-agenda.notice}))))))
+
+; Centred under the clock, which sits in the middle of the bar.
+(defwindow calendar
+           :monitor 0
+           :geometry (geometry :x "0px"
+                               :y "8px"
+                               :anchor "top center")
+           :stacking "overlay"
+           :namespace "eww-calendar"
+  (calendar-popup))
+
+; ============================================
+; Keyboard Layout OSD
+; ============================================
+; Shown for a moment when the layout changes, by scripts/keyboard-osd.py.
+
+(defvar osd-icon "")
+(defvar osd-layout "")
+
+(defwindow keyboard-osd
+           :monitor 0
+           :geometry (geometry :x "0px"
+                               :y "120px"
+                               :anchor "bottom center")
+           :stacking "overlay"
+           :namespace "eww-keyboard-osd"
+  (box :class "keyboard-osd"
+       :space-evenly false
+    (label :class "keyboard-osd-icon" :text osd-icon)
+    (label :class "keyboard-osd-layout" :text osd-layout)))
+
+; ============================================
+; Quick Settings
+; ============================================
+; GNOME's system menu: opened by the bar's right-hand modules through
+; waybar/scripts/control-panel.sh, closed by popup-closer. scripts/qs-state.py
+; supplies `qs` while the panel is open and scripts/qs-action.sh runs the
+; clicks. Command lines only ever carry ids from `qs`, never SSIDs or device
+; names: those are other people's text, and eww pastes values into a shell.
+
+(defvar qs-open "")
+(deflisten qs :initial "{}" "~/.config/eww/scripts/qs-state.py")
+
+(defwidget qs-expander [section]
+  (button :class "qs-expander ${qs-open == section ? 'open' : ''}"
+          :onclick "~/.config/eww/scripts/qs-action.sh expand ${section} ${qs-open}"
+          :timeout "2s"
+    (label :text {qs-open == section ? qs.icons.chevron_up : qs.icons.chevron_down})))
+
+(defwidget qs-tile [on icon title subtitle action ?section]
+  (box :class "qs-tile ${on ? 'on' : ''}"
+       :space-evenly false
+    (button :class "qs-tile-main"
+            :hexpand true
+            :onclick "~/.config/eww/scripts/qs-action.sh ${action}"
+            :timeout "10s"
+      (box :space-evenly false
+        (label :class "qs-tile-icon" :text icon)
+        (box :orientation "v"
+             :space-evenly false
+             :valign "center"
+          (label :class "qs-tile-title" :halign "start" :limit-width {section != "" ? 12 : 16} :text title)
+          (label :class "qs-tile-subtitle" :halign "start" :limit-width {section != "" ? 14 : 19} :text subtitle))))
+    (box :visible {section != ""}
+      (qs-expander :section section))))
+
+(defwidget qs-section [name title]
+  (revealer :transition "slidedown"
+            :reveal {qs-open == name}
+            :duration "250ms"
+    (box :class "qs-section"
+         :orientation "v"
+         :space-evenly false
+      (label :class "qs-section-title" :halign "start" :text title)
+      (children))))
+
+; Takes its icons as arguments: a row inside a `for` that reads `qs` itself
+; leaves a listener behind when the list rebuilds ("Scope not in graph").
+(defwidget qs-row [icon mark name active action]
+  (button :class "qs-list-row ${active ? 'active' : ''}"
+          :onclick "~/.config/eww/scripts/qs-action.sh ${action}"
+          :timeout "30s"
+    (box :space-evenly false
+      (label :class "qs-list-icon" :text icon)
+      (label :class "qs-list-name" :halign "start" :hexpand true :limit-width 28 :text name)
+      (label :class "qs-list-icon" :text mark))))
+
+(defwidget qs-notice [text]
+  ; A revealer rather than :visible, because a label built hidden stays hidden
+  ; the first time it should appear.
+  (revealer :reveal {text != ""}
+            :transition "none"
+            :duration "0ms"
+            :halign "center"
+    (label :class "qs-notice" :text text)))
+
+(defwidget qs-link [text action]
+  (button :class "qs-link"
+          :onclick "~/.config/eww/scripts/qs-action.sh ${action}"
+          :timeout "2s"
+    (label :halign "start" :text text)))
+
+(defwidget quick-settings []
+  (box :class "quick-settings"
+       :orientation "v"
+       :space-evenly false
+    (box :class "qs-top"
+         :space-evenly false
+      (box :class "qs-battery"
+           :hexpand true
+           :halign "start"
+           :space-evenly false
+           :visible {qs.battery.present}
+        (label :class "qs-battery-icon" :text {qs.battery.icon})
+        (label :class "qs-battery-percent" :text "${qs.battery.percent}%"))
+      (box :hexpand true :visible {!qs.battery.present})
+      (button :class "qs-round"
+              :onclick "~/.config/eww/scripts/qs-action.sh lock"
+              :timeout "2s"
+        (label :text {qs.icons.lock}))
+      (button :class "qs-round"
+              :onclick "~/.config/eww/scripts/qs-action.sh power-menu"
+              :timeout "2s"
+        (label :text {qs.icons.power})))
+
+    (box :class "qs-slider-row"
+         :space-evenly false
+      (button :class "qs-round"
+              :onclick "~/.config/eww/scripts/qs-action.sh volume-mute"
+              :timeout "2s"
+        (label :text {qs.audio.icon}))
+      ; eww's scale stops one short of :max, so 101 is what reaches 100%.
+      (scale :class "qs-scale"
+             :hexpand true
+             :min 0
+             :max 101
+             :round-digits 0
+             :value {qs.audio.percent}
+             :onchange "~/.config/eww/scripts/qs-action.sh volume {}"
+             :timeout "2s")
+      (qs-expander :section "audio"))
+    (qs-section :name "audio" :title "Sound Output"
+      (box :orientation "v" :space-evenly false
+        (for sink in {qs.audio.sinks}
+          (qs-row :icon {sink.icon}
+                  :mark {sink.mark}
+                  :name {sink.name}
+                  :active {sink.active}
+                  :action "sink ${sink.id}"))))
+
+    (box :class "qs-slider-row"
+         :space-evenly false
+      (box :class "qs-slider-icon"
+        (label :text {qs.icons.brightness}))
+      (scale :class "qs-scale"
+             :hexpand true
+             :min 1
+             :max 101
+             :round-digits 0
+             :value {qs.brightness.percent}
+             :onchange "~/.config/eww/scripts/qs-action.sh brightness {}"
+             :timeout "2s")
+      (box :class "qs-slider-end"))
+
+    (box :class "qs-tile-row"
+      (qs-tile :on {qs.wifi.on}
+               :icon {qs.wifi.icon}
+               :title "Wi-Fi"
+               :subtitle {qs.wifi.subtitle}
+               :action "wifi-toggle"
+               :section "wifi")
+      (qs-tile :on {qs.bluetooth.on}
+               :icon {qs.bluetooth.icon}
+               :title "Bluetooth"
+               :subtitle {qs.bluetooth.subtitle}
+               :action "bluetooth-toggle"
+               :section "bluetooth"))
+    (qs-section :name "wifi" :title "Wi-Fi Networks"
+      (box :orientation "v" :space-evenly false
+        (for network in {qs.wifi.networks}
+          (qs-row :icon {network.icon}
+                  :mark {network.mark}
+                  :name {network.name}
+                  :active {network.active}
+                  :action "wifi-connect ${network.connect}")))
+      (qs-notice :text {qs.wifi.notice})
+      (qs-link :text "All Networks..." :action "wifi-settings"))
+    (qs-section :name "bluetooth" :title "Bluetooth Devices"
+      (box :orientation "v" :space-evenly false
+        (for device in {qs.bluetooth.devices}
+          (qs-row :icon {device.icon}
+                  :mark {device.mark}
+                  :name {device.name}
+                  :active {device.connected}
+                  :action "bluetooth-device ${device.mac} ${device.connected ? 'disconnect' : 'connect'}")))
+      (qs-notice :text {qs.bluetooth.notice})
+      (qs-link :text "Bluetooth Settings..." :action "bluetooth-settings"))
+
+    (box :class "qs-tile-row"
+      (qs-tile :on false
+               :icon {qs.icons.keyboard}
+               :title "Keyboard"
+               :subtitle {qs.keyboard.layout}
+               :action "keyboard-next ${qs.keyboard.device}")
+      (qs-tile :on {!qs.mic.muted}
+               :icon {qs.mic.icon}
+               :title "Microphone"
+               :subtitle {qs.mic.subtitle}
+               :action "mic-mute"))
+    (box :class "qs-tile-row"
+      (qs-tile :on {qs.night.on}
+               :icon {qs.icons.night}
+               :title "Night Light"
+               :subtitle {qs.night.subtitle}
+               :action "night")
+      (qs-tile :on {qs.dnd.on}
+               :icon {qs.icons.dnd}
+               :title "Do Not Disturb"
+               :subtitle {qs.dnd.subtitle}
+               :action "dnd"))))
+
+(defwindow quick-settings
+           :monitor 0
+           :geometry (geometry :x "10px"
+                               :y "8px"
+                               :anchor "top right")
+           :stacking "overlay"
+           :namespace "eww-quick-settings"
+  (quick-settings))

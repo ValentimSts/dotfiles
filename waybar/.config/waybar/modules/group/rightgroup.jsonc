@@ -6,6 +6,7 @@
 
 {
   "include": [
+    "~/.config/waybar/modules/language.jsonc",
     "~/.config/waybar/modules/battery.jsonc",
     "~/.config/waybar/modules/network.jsonc",
     "~/.config/waybar/modules/pulseaudio.jsonc",
@@ -17,12 +18,12 @@
     "spacing": 100,
     "orientation": "horizontal",
     "modules": [
+      "hyprland/language",
       "battery",
       "network",
       "backlight",
       "pulseaudio",
       "custom/power"
-    ],
-    "on-click": "~/.config/waybar/scripts/control-panel.sh"
+    ]
   }
 }

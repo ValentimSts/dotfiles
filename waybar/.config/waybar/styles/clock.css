@@ -2,7 +2,6 @@
 
 #clock {
   margin: 0;
-  padding: 4px 18px;
-  border: 2px solid @background;
+  padding: 0 12px;
   color: @background;
 }
