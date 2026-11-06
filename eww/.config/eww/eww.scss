@@ -1,7 +1,3 @@
-// ============================================
-// Control Panel Styles
-// ============================================
-
 // Colour variables come from _colors.scss, a symlink into the active colour
 // scheme's ports (managed by color-scheme).
 @import "colors";
@@ -13,105 +9,432 @@ $border-radius: 12px;
   font-size: 14px;
 }
 
-.control-panel {
-  background-color: $bg-color;
-  border-radius: $border-radius;
-  padding: 20px;
-  border: 1px solid $bg-secondary;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+// ============================================
+// Popups
+// ============================================
+// Same language as the bar: a rounded, translucent panel in the bar's fill
+// colour (blurred by a Hyprland layer rule) with light text.
+
+@mixin popup-panel($radius: 12px) {
+  background-color: rgba($fg-color, 0.85);
+  border: 1px solid rgba($bg-color, 0.15);
+  border-radius: $radius;
 }
 
-// Slider row styles
-.slider-row {
-  background-color: $bg-secondary;
-  border-radius: 8px;
-  padding: 12px;
-  
-  .icon {
-    font-size: 18px;
-    color: $accent;
-    min-width: 24px;
+// GTK's button theme outranks the `all: unset` above, so undo it here.
+@mixin popup-button-base {
+  background-image: none;
+  background-color: transparent;
+  border: none;
+  border-radius: 999px;
+  box-shadow: none;
+  text-shadow: none;
+  color: $bg-color;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+@mixin popup-button {
+  @include popup-button-base;
+
+  // Inverted pill: the bar's 15% wash is too faint on a panel this size.
+  &:hover {
+    background-color: $bg-color;
+    color: $fg-color;
   }
-  
-  .value {
-    color: $fg-dim;
+}
+
+.popup-closer {
+  background-color: transparent;
+}
+
+// ============================================
+// Power Menu
+// ============================================
+
+.power-menu {
+  @include popup-panel;
+  padding: 6px;
+}
+
+// The `*` rule above styles every label directly, so the font has to be set
+// on the labels themselves rather than inherited from the panel.
+.power-item label {
+  font-family: "RobotoMono Nerd Font Propo";
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.power-item {
+  @include popup-button;
+  padding: 8px 14px;
+}
+
+.power-icon {
+  font-size: 17px;
+  min-width: 24px;
+}
+
+// ============================================
+// Calendar
+// ============================================
+// The macOS month view: title and arrows on top, a fixed grid of round days.
+
+.calendar {
+  @include popup-panel(18px);
+  padding: 16px;
+}
+
+.calendar-header {
+  margin-bottom: 12px;
+}
+
+.calendar-month,
+.calendar-year,
+.calendar-weekday,
+.calendar-day label,
+.calendar-nav label,
+.calendar-agenda label {
+  font-family: "RobotoMono Nerd Font Propo";
+  color: inherit;
+}
+
+.calendar-month,
+.calendar-year {
+  font-size: 18px;
+  color: $bg-color;
+}
+
+.calendar-month {
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.calendar-year {
+  font-weight: 400;
+  color: rgba($bg-color, 0.65);
+}
+
+.calendar-arrow {
+  @include popup-button;
+  min-width: 28px;
+  min-height: 28px;
+
+  label {
     font-size: 12px;
-    min-width: 40px;
-    text-align: right;
   }
 }
 
-.slider {
-  min-height: 8px;
-  min-width: 100px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.1);
-  
+// Returns to the current month, so it only reacts when away from it.
+.calendar-title {
+  @include popup-button-base;
+  padding: 2px 10px;
+
+  &:hover {
+    background-color: rgba($bg-color, 0.3);
+  }
+
+  &.here:hover {
+    background-color: transparent;
+  }
+}
+
+.calendar-weekday {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba($bg-color, 0.65);
+  min-width: 38px;
+  margin-bottom: 4px;
+}
+
+.calendar-day {
+  @include popup-button-base;
+  min-width: 32px;
+  min-height: 32px;
+  margin: 1px 3px;
+
+  label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &:hover {
+    background-color: rgba($bg-color, 0.3);
+  }
+
+  // Kept close to full strength so only other-month days read as faded.
+  &.weekend {
+    color: rgba($bg-color, 0.8);
+  }
+
+  &.other-month {
+    color: rgba($bg-color, 0.2);
+  }
+
+  &.selected {
+    box-shadow: inset 0 0 0 2px $bg-color;
+  }
+
+  &.today,
+  &.today:hover {
+    background-color: $bg-color;
+    color: $fg-color;
+
+    label {
+      font-weight: 700;
+    }
+  }
+
+  &.today.selected {
+    box-shadow: inset 0 0 0 2px $fg-color;
+  }
+}
+
+.calendar-agenda {
+  margin-top: 12px;
+  padding: 12px 4px 0;
+  border-top: 1px solid rgba($bg-color, 0.15);
+}
+
+.calendar-agenda-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: $bg-color;
+  margin-bottom: 8px;
+}
+
+.calendar-event {
+  padding-left: 10px;
+  margin-bottom: 8px;
+  border-left: 3px solid $bg-color;
+}
+
+.calendar-event-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: $bg-color;
+}
+
+.calendar-event-detail,
+.calendar-agenda-notice {
+  font-size: 12px;
+  color: rgba($bg-color, 0.65);
+}
+
+// ============================================
+// Keyboard Layout OSD
+// ============================================
+
+.keyboard-osd {
+  @include popup-panel(999px);
+  padding: 12px 26px;
+}
+
+.keyboard-osd-icon {
+  color: $bg-color;
+  font-size: 26px;
+  margin-right: 14px;
+}
+
+.keyboard-osd-layout {
+  color: $bg-color;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+// ============================================
+// Quick Settings
+// ============================================
+// GNOME's system menu: sliders on top of a two-column grid of pill tiles, each
+// tile split into a toggle and, where it has a list, an expander.
+
+.quick-settings {
+  @include popup-panel(18px);
+  padding: 14px;
+  min-width: 380px;
+}
+
+.qs-top {
+  margin-bottom: 10px;
+}
+
+.qs-battery {
+  padding-left: 6px;
+}
+
+.qs-battery-icon {
+  color: $bg-color;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.qs-battery-percent {
+  color: $bg-color;
+  font-weight: 700;
+}
+
+.qs-round,
+.qs-expander {
+  @include popup-button;
+  min-width: 34px;
+  min-height: 34px;
+
+  label {
+    font-size: 17px;
+  }
+}
+
+.qs-round {
+  margin-left: 6px;
+}
+
+.qs-slider-row {
+  margin-bottom: 8px;
+
+  > .qs-round {
+    margin-left: 0;
+  }
+}
+
+.qs-slider-icon,
+.qs-slider-end {
+  min-width: 34px;
+  min-height: 34px;
+}
+
+.qs-slider-icon label {
+  color: $bg-color;
+  font-size: 17px;
+}
+
+.qs-scale {
+  margin: 0 8px;
+
   trough {
     min-height: 8px;
-    border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background-color: rgba($bg-color, 0.2);
   }
-  
+
   highlight {
-    border-radius: 4px;
+    border-radius: 999px;
+    background-color: $bg-color;
   }
-  
+
   slider {
-    min-width: 16px;
-    min-height: 16px;
-    border-radius: 50%;
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    min-width: 18px;
+    min-height: 18px;
+    margin: -5px 0;
+    border-radius: 999px;
+    background-color: $bg-color;
+    transition: min-width 100ms ease, min-height 100ms ease;
   }
 }
 
-.volume-slider {
-  highlight {
-    background: linear-gradient(90deg, $accent, $accent-secondary);
+.qs-tile-row {
+  margin-top: 8px;
+}
+
+.qs-tile {
+  border-radius: 999px;
+  background-color: rgba($bg-color, 0.12);
+  margin: 0 4px;
+
+  label {
+    color: $bg-color;
+  }
+
+  &.on {
+    background-color: $bg-color;
+
+    label {
+      color: $fg-color;
+    }
+
+    .qs-tile-main:hover,
+    .qs-expander:hover {
+      background-color: rgba($fg-color, 0.15);
+    }
+  }
+
+  .qs-expander {
+    margin: 0;
+    min-width: 38px;
+
+    &:hover {
+      background-color: rgba($bg-color, 0.2);
+      color: $bg-color;
+    }
   }
 }
 
-.brightness-slider {
-  highlight {
-    background: linear-gradient(90deg, $warning, $accent);
-  }
-}
+.qs-tile-main {
+  @include popup-button-base;
+  padding: 8px 8px 8px 14px;
 
-.toggles {
-  margin-top: 5px;
-}
-
-.toggle {
-  background-color: $bg-secondary;
-  border-radius: 12px;
-  padding: 15px 20px;
-  transition: all 200ms ease;
-  min-width: 100px;
-  
   &:hover {
-    background-color: lighten($bg-secondary, 5%);
+    background-color: rgba($bg-color, 0.2);
   }
-  
-  &.active {
-    background-color: rgba($accent, 0.2);
-    
-    .toggle-icon {
-      color: $accent;
-    }
-    
-    .toggle-label {
-      color: $accent;
-    }
-  }
-  
-  .toggle-icon {
-    font-size: 24px;
-    color: $fg-dim;
-  }
-  
-  .toggle-label {
+}
+
+.qs-tile-icon {
+  font-size: 19px;
+  margin-right: 10px;
+}
+
+.qs-tile-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.qs-tile-subtitle {
+  font-size: 11px;
+}
+
+.qs-section {
+  margin: 8px 4px 0;
+  padding: 10px;
+  border-radius: 14px;
+  background-color: rgba($bg-color, 0.12);
+}
+
+.qs-section-title {
+  color: $bg-color;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 6px 8px;
+}
+
+.qs-list-row,
+.qs-link {
+  @include popup-button;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.qs-list-row.active label {
+  font-weight: 700;
+}
+
+.qs-list-icon {
+  font-size: 16px;
+  min-width: 24px;
+}
+
+.qs-list-name {
+  font-size: 13px;
+  margin: 0 8px;
+}
+
+.qs-notice {
+  color: rgba($bg-color, 0.65);
+  font-size: 12px;
+}
+
+.qs-link {
+  margin-top: 4px;
+
+  label {
     font-size: 12px;
-    color: $fg-dim;
   }
 }
