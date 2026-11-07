@@ -82,3 +82,46 @@ def test_missing_slot_is_an_error(tmp_path):
         assert "base17" in str(e)
     else:
         raise AssertionError("expected SchemeError")
+
+
+def context_with_nvim_block(tmp_path, block):
+    pkg = make_package(tmp_path)
+    path = pkg / "schemes" / "test" / "dark.yaml"
+    path.write_text(path.read_text() + block)
+    return build.load_context(pkg, "test", "dark")
+
+
+def test_nvim_block_overrides_the_nvim_slots_only(tmp_path):
+    ctx = context_with_nvim_block(
+        tmp_path, 'nvim:\n  emphasis: true\n  palette:\n    base0E: "#ABCDEF"\n'
+    )
+    assert ctx["nvim_slots"]["base0E"] == "#abcdef"
+    assert ctx["nvim_slots"]["base08"] == "#ff0000"
+    assert ctx["nvim_emphasis"] is True
+    assert ctx["slots"]["base0E"] == "#ff00ff"
+    assert ctx["ansi"][5] == "#ff00ff"
+
+
+def test_nvim_slots_default_to_the_palette(tmp_path):
+    ctx = build.load_context(make_package(tmp_path), "test", "dark")
+    assert ctx["nvim_slots"]["base0E"] == "#ff00ff"
+    assert len(ctx["nvim_slots"]) == 16
+    assert ctx["nvim_emphasis"] is False
+
+
+def test_nvim_palette_rejects_slots_mini_base16_does_not_read(tmp_path):
+    try:
+        context_with_nvim_block(tmp_path, 'nvim:\n  palette:\n    base12: "#000000"\n')
+    except build.SchemeError as e:
+        assert "base12" in str(e)
+    else:
+        raise AssertionError("expected SchemeError")
+
+
+def test_nvim_palette_rejects_bad_colours(tmp_path):
+    try:
+        context_with_nvim_block(tmp_path, 'nvim:\n  palette:\n    base0E: "nope"\n')
+    except build.SchemeError as e:
+        assert "nvim.palette.base0E" in str(e)
+    else:
+        raise AssertionError("expected SchemeError")

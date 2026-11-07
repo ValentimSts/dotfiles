@@ -28,3 +28,18 @@ palette:
   base15: "#b8b8b8"
   base16: "#868686"
   base17: "#5e5e5e"
+
+# See light.yaml: the same ink order, inverted.
+nvim:
+  emphasis: true
+  palette:
+    base03: "#8e8e8e"
+    base04: "#a4a4a4"
+    base07: "#e6e6e6"
+    base09: "#bdbdbd"
+    base0A: "#d2d2d2"
+    base0B: "#a8a8a8"
+    base0C: "#bdbdbd"
+    base0D: "#dcdcdc"
+    base0E: "#efefef"
+    base0F: "#969696"

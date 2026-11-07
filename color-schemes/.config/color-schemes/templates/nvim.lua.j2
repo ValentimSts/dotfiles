@@ -2,6 +2,9 @@
 -- A mini.base16 palette; loaded by nvim's colors/rice.lua.
 return {
 {% for i in range(16) %}
-    base{{ '%02X' % i }} = "{{ slots['base%02X' % i] }}",
+    base{{ '%02X' % i }} = "{{ nvim_slots['base%02X' % i] }}",
 {% endfor %}
+{% if nvim_emphasis %}
+    emphasis = true,
+{% endif %}
 }
