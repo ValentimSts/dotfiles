@@ -12,6 +12,12 @@ Template variables follow the tinted-theming builder names with underscores
 (base00_hex, base00_rgb_r, scheme_is_dark_variant, ...) plus a `roles` table
 of semantic colours, a `slots` table (base00..base17 -> '#rrggbb') and an
 `ansi` list of the 16 terminal colours.
+
+A scheme may carry an optional `nvim:` block. `nvim.palette` overrides base00..
+base0F for the Neovim port only, because mini.base16 reads those slots as syntax
+colours and a palette tuned for a terminal can be unreadable as code.
+`nvim.emphasis: true` asks for bold and italic syntax, for schemes without hues.
+Templates see the result as `nvim_slots` and `nvim_emphasis`.
 """
 import argparse
 import pathlib
@@ -51,6 +57,13 @@ def rgb(hex_color):
     return ", ".join(str(int(h[i:i + 2], 16)) for i in (0, 2, 4))
 
 
+def normalise_hex(path, slot, colour):
+    value = str(colour).lstrip("#").lower()
+    if len(value) != 6 or any(c not in "0123456789abcdef" for c in value):
+        raise SchemeError(f"{path}: {slot} is not a #rrggbb colour: {colour}")
+    return value
+
+
 def load_context(package, scheme, mode):
     path = package / "schemes" / scheme / f"{mode}.yaml"
     data = yaml.safe_load(path.read_text())
@@ -75,9 +88,7 @@ def load_context(package, scheme, mode):
     }
     hexes = {}
     for slot in SLOTS:
-        value = str(palette[slot]).lstrip("#").lower()
-        if len(value) != 6 or any(c not in "0123456789abcdef" for c in value):
-            raise SchemeError(f"{path}: {slot} is not a #rrggbb colour: {palette[slot]}")
+        value = normalise_hex(path, slot, palette[slot])
         hexes[slot] = "#" + value
         ctx[f"{slot}_hex"] = value
         for name, i in (("r", 0), ("g", 2), ("b", 4)):
@@ -88,6 +99,16 @@ def load_context(package, scheme, mode):
     ctx["roles"] = {role: hexes[slot] for role, slot in ROLES.items()}
     ctx["roles"]["accent"] = hexes[accent_slot]
     ctx["ansi"] = [hexes[slot] for slot in ANSI]
+
+    nvim = data.get("nvim") or {}
+    overrides = nvim.get("palette") or {}
+    unknown = [s for s in overrides if s not in SLOTS[:16]]
+    if unknown:
+        raise SchemeError(f"{path}: nvim.palette only takes base00..base0F: {', '.join(unknown)}")
+    ctx["nvim_slots"] = {slot: hexes[slot] for slot in SLOTS[:16]}
+    for slot, colour in overrides.items():
+        ctx["nvim_slots"][slot] = "#" + normalise_hex(path, f"nvim.palette.{slot}", colour)
+    ctx["nvim_emphasis"] = bool(nvim.get("emphasis"))
     return ctx
 
 

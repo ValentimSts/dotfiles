@@ -28,3 +28,20 @@ palette:
   base15: "#4a4a4a"
   base16: "#727272"
   base17: "#aeaeae"
+
+# mini.base16 reads base03..base0F as syntax colours, which this terminal palette
+# was not chosen for: keywords came out at 1.38:1 and strings at 1.75:1, fainter
+# than comments at 4.04:1. A scheme without hues separates syntax by ink, so here
+# keywords are darkest, code is readable, and only comments and punctuation fade.
+nvim:
+  emphasis: true
+  palette:
+    base03: "#6e6e6e"
+    base04: "#5a5a5a"
+    base07: "#262626"
+    base09: "#4d4d4d"
+    base0A: "#3a3a3a"
+    base0B: "#575757"
+    base0D: "#2e2e2e"
+    base0E: "#1f1f1f"
+    base0F: "#666666"
