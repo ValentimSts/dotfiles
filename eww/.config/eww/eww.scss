@@ -226,20 +226,31 @@ $border-radius: 12px;
 // ============================================
 
 .keyboard-osd {
-  @include popup-panel(999px);
-  padding: 12px 26px;
+  @include popup-panel(18px);
+  padding: 8px;
 }
 
-.keyboard-osd-icon {
+.keyboard-osd-option {
   color: $bg-color;
-  font-size: 26px;
-  margin-right: 14px;
+  border-radius: 12px;
+  min-width: 132px;
+  padding: 14px 18px;
+  margin: 0 4px;
+
+  &.active {
+    background-color: $bg-color;
+    color: $fg-color;
+  }
 }
 
-.keyboard-osd-layout {
-  color: $bg-color;
-  font-size: 20px;
+.keyboard-osd-code {
+  font-size: 30px;
   font-weight: 700;
+}
+
+.keyboard-osd-name {
+  font-size: 14px;
+  margin-top: 4px;
 }
 
 // ============================================

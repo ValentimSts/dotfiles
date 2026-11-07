@@ -171,22 +171,24 @@
 ; ============================================
 ; Keyboard Layout OSD
 ; ============================================
-; Shown for a moment when the layout changes, by scripts/keyboard-osd.py.
+; Shown for a moment when the layout changes, by scripts/keyboard-osd.py: every
+; configured layout, with the active one highlighted.
 
-(defvar osd-icon "")
-(defvar osd-layout "")
+(defvar osd-options "[]")
 
 (defwindow keyboard-osd
            :monitor 0
-           :geometry (geometry :x "0px"
-                               :y "120px"
-                               :anchor "bottom center")
+           :geometry (geometry :anchor "center center")
            :stacking "overlay"
            :namespace "eww-keyboard-osd"
   (box :class "keyboard-osd"
-       :space-evenly false
-    (label :class "keyboard-osd-icon" :text osd-icon)
-    (label :class "keyboard-osd-layout" :text osd-layout)))
+    (for option in osd-options
+      (box :class "keyboard-osd-option ${option.active ? 'active' : ''}"
+           :orientation "v"
+           :space-evenly false
+           :valign "center"
+        (label :class "keyboard-osd-code" :text {option.code})
+        (label :class "keyboard-osd-name" :text {option.name})))))
 
 ; ============================================
 ; Quick Settings

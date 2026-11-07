@@ -1,7 +1,8 @@
 #!/usr/bin/python3
-"""Show the keyboard layout on screen for a moment whenever it changes.
+"""Show the keyboard layouts on screen for a moment when the active one changes.
 
-Follows Hyprland's event socket and drives the keyboard-osd eww window. Runs as
+Lists every configured layout with the active one highlighted, like GNOME's
+input source switcher. Follows Hyprland's event socket and drives the keyboard-osd eww window. Runs as
 the keyboard-osd user service.
 """
 
@@ -12,22 +13,45 @@ import socket
 import subprocess
 import sys
 import time
+import xml.etree.ElementTree as ElementTree
 
 WINDOW = "keyboard-osd"
 SHOW_SECONDS = 1.2
 EVENT_PREFIX = "activelayout>>"
-KEYBOARD_ICON = "\U000f030c"
+XKB_REGISTRY = "/usr/share/X11/xkb/rules/evdev.xml"
 
 
 def eww(*args):
     subprocess.run(["eww", *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def device_layouts():
+def read_keyboards():
     output = subprocess.run(
         ["hyprctl", "devices", "-j"], capture_output=True, text=True
     ).stdout
-    return {k["name"]: k["active_keymap"] for k in json.loads(output)["keyboards"]}
+    return json.loads(output)["keyboards"]
+
+
+def read_layout_labels():
+    """Map xkb layout ids to (language code, name): us -> (EN, English (US))."""
+    labels = {}
+    for item in ElementTree.parse(XKB_REGISTRY).findall("./layoutList/layout/configItem"):
+        labels[item.findtext("name")] = (
+            item.findtext("shortDescription", item.findtext("name")).upper(),
+            item.findtext("description"),
+        )
+    return labels
+
+
+def layout_options(keyboard, labels):
+    options = []
+    for index, layout in enumerate(keyboard["layout"].split(",")):
+        layout = layout.strip()
+        code, name = labels.get(layout, (layout.upper(), layout))
+        options.append(
+            {"code": code, "name": name, "active": index == keyboard["active_layout_index"]}
+        )
+    return options
 
 
 def layout_events(lines):
@@ -51,7 +75,8 @@ def main():
     # keyboard interface) announces its layout when it attaches. So a switch is
     # a device we already know changing layout, not any event that names a
     # layout different from the last one.
-    layouts = device_layouts()
+    layouts = {k["name"]: k["active_keymap"] for k in read_keyboards()}
+    labels = read_layout_labels()
     shown = None
     hide_at = None
     pending = ""
@@ -78,9 +103,13 @@ def main():
             layouts[device] = layout
             if previous is None or previous == layout:
                 continue
-            if layout != shown:
-                eww("update", f"osd-icon={KEYBOARD_ICON}", f"osd-layout={layout}")
-                shown = layout
+            keyboard = next((k for k in read_keyboards() if k["name"] == device), None)
+            if keyboard is None:
+                continue  # it detached again before we could read it
+            options = json.dumps(layout_options(keyboard, labels))
+            if options != shown:
+                eww("update", f"osd-options={options}")
+                shown = options
             # Opening a window that is already open would make it flash.
             if hide_at is None:
                 eww("open", WINDOW)
