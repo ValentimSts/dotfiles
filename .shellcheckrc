@@ -1,0 +1,5 @@
+# Scripts source scripts/lib.sh by a path built at run time; look next to them.
+source-path=SCRIPTDIR
+external-sources=true
+# Files outside the repo (nvm, the secrets file) cannot be followed.
+disable=SC1091

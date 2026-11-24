@@ -10,3 +10,4 @@ install\.sh
 ^/packages
 ^/gnome
 ^/\.claude
+^/\.github
