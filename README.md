@@ -45,6 +45,14 @@ registered there by hand (`hooks.SessionStart`, `hooks.Stop` and
 `hooks.PreToolUse`). `hooks/guard-destructive.py` blocks force pushes and the
 other destructive commands listed in `CLAUDE.md`; `make test` covers it.
 
+The same package holds `claude-dream` (`~/.local/bin`) and its weekly user timer.
+Once a week it reads what was typed in each project's recent Claude Code sessions
+and proposes changes to that project's memory on a copy: lessons nobody wrote
+down, duplicates merged, contradictions settled. Nothing live changes until
+`claude-dream apply`; `claude-dream diff` shows a proposal and `claude-dream
+discard` drops it. The model runs without shell or network and never sees tool
+output, and every memory directory is versioned in `~/.claude/memory.git`.
+
 ## Day-to-day
 
 | Task | Command |

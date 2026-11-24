@@ -1,0 +1,9 @@
+[Unit]
+Description=Propose memory consolidations for Claude Code projects
+Documentation=file://%h/.local/bin/claude-dream
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/claude-dream run
+Nice=10

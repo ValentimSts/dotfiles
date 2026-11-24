@@ -1,0 +1,536 @@
+#!/usr/bin/python3
+"""Consolidate Claude Code's per-project memory from recent sessions ("dreaming").
+
+Usage: claude-dream run [--project NAME] [--limit N] [--force]
+       claude-dream status
+       claude-dream diff [NAME]
+       claude-dream apply [NAME] [--force]
+       claude-dream discard [NAME]
+
+run      For each project with memory and sessions newer than its last pass,
+         have Claude rewrite a COPY of the memory: duplicates merged,
+         contradictions settled, lessons from the sessions added. Nothing live
+         changes. The weekly claude-dream timer runs this.
+status   List the proposals waiting for review.
+diff     Show a proposal: Claude's own report, then the changes as a diff.
+apply    Put a proposal into the live memory and record it in git.
+discard  Drop a proposal.
+
+NAME is a project path (default: the current directory) or any part of the
+project's name under ~/.claude/projects, as long as it matches one project.
+
+Every memory directory is kept in a git repository of its own,
+~/.claude/memory.git, committed before and after each apply, so a bad pass is
+one `git revert` away:
+    git --git-dir ~/.claude/memory.git --work-tree ~/.claude/projects log
+
+What the model gets is small on purpose. It runs without shell, network, MCP
+servers, plugins or CLAUDE.md, confined to the proposal's folder, and it never
+sees a transcript: only a digest of what the user typed and short excerpts of
+Claude's replies, with no tool output. A web page or file that passed through a
+session therefore cannot reach memory this way. Review is still the control.
+"""
+
+import argparse
+import datetime
+import fcntl
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+CLAUDE_DIR = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.expanduser("~/.claude")
+PROJECTS = os.path.join(CLAUDE_DIR, "projects")
+GIT_DIR = os.path.join(CLAUDE_DIR, "memory.git")
+PROMPT = os.path.join(CLAUDE_DIR, "dream", "prompt.md")
+# Proposals are worked on outside ~/.claude: Claude Code protects that folder,
+# and an unattended run is refused every write inside it.
+STATE_DIR = os.path.join(os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state"), "claude-dream")
+PROPOSALS = os.path.join(STATE_DIR, "proposals")
+STATE = os.path.join(STATE_DIR, "state.json")
+
+MODEL = os.environ.get("CLAUDE_DREAM_MODEL", "sonnet")
+RUN_TIMEOUT_SECONDS = 20 * 60
+# One model session per project, so a run takes the busiest few and leaves the
+# rest for next week.
+DEFAULT_LIMIT = 6
+# Fewer typed messages than this are not worth a session; they wait.
+MIN_USER_MESSAGES = 3
+DIGEST_CHARS = 240_000
+SESSION_CHARS = 40_000
+USER_CHARS = 2_000
+REPLY_CHARS = 500
+# A proposal that removes more than this share of the memory's lines is marked.
+LARGE_DELETION = 0.5
+DELETE_MARK = "DELETE"
+# Only memory directories are tracked: everything else under projects/ is
+# transcripts.
+GIT_EXCLUDE = "/*/*\n!/*/memory\n"
+INJECTED = re.compile(r"<system-reminder>.*?</system-reminder>", re.DOTALL)
+NOT_TYPED = ("<", "[Request interrupted", "Base directory for this skill", "This session is being continued")
+
+
+def log(message):
+    print(message, flush=True)
+
+
+# -- git ---------------------------------------------------------------------
+
+
+def git(*args, check=True):
+    command = ["git", "--git-dir", GIT_DIR, "--work-tree", PROJECTS, *args]
+    return subprocess.run(command, capture_output=True, text=True, check=check)
+
+
+def ensure_repo():
+    if not os.path.isdir(GIT_DIR):
+        subprocess.run(["git", "init", "--quiet", "--bare", GIT_DIR], check=True)
+        git("config", "core.bare", "false")
+        git("config", "user.name", "claude-dream")
+        git("config", "user.email", "claude-dream@localhost")
+    with open(os.path.join(GIT_DIR, "info", "exclude"), "w") as handle:
+        handle.write(GIT_EXCLUDE)
+
+
+def snapshot(message):
+    """Commit the live memory as it is now; False when nothing changed."""
+    git("add", "--all")
+    if git("diff", "--cached", "--quiet", check=False).returncode == 0:
+        return False
+    git("commit", "--quiet", "--message", message)
+    return True
+
+
+# -- projects ----------------------------------------------------------------
+
+
+def memory_dir(key):
+    return os.path.join(PROJECTS, key, "memory")
+
+
+def proposal_dir(key):
+    return os.path.join(PROPOSALS, key)
+
+
+def projects_with_memory():
+    if not os.path.isdir(PROJECTS):
+        return []
+    return sorted(k for k in os.listdir(PROJECTS) if os.path.isfile(os.path.join(memory_dir(k), "MEMORY.md")))
+
+
+def normalise(text):
+    return re.sub(r"[^a-z0-9]", "-", text.lower())
+
+
+def resolve(name, candidates):
+    """The one project a name stands for: a path, or part of a project's name."""
+    if name is None or os.path.isdir(name):
+        path = os.path.abspath(name or ".")
+        top = subprocess.run(["git", "-C", path, "rev-parse", "--show-toplevel"], capture_output=True, text=True)
+        wanted = normalise(top.stdout.strip() if top.returncode == 0 else path)
+        matches = [k for k in candidates if normalise(k) == wanted]
+    else:
+        matches = [k for k in candidates if normalise(name).strip("-") in normalise(k)]
+    if len(matches) != 1:
+        found = "none" if not matches else ", ".join(matches)
+        sys.exit("claude-dream: %r should match one project, found: %s" % (name or os.getcwd(), found))
+    return matches[0]
+
+
+def read_state():
+    try:
+        with open(STATE) as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return {}
+
+
+def write_state(state):
+    os.makedirs(STATE_DIR, exist_ok=True)
+    with open(STATE + ".tmp", "w") as handle:
+        json.dump(state, handle, indent=2, sort_keys=True)
+    os.replace(STATE + ".tmp", STATE)
+
+
+def sessions_since(key, since):
+    """The project's own transcripts changed after a time, oldest first."""
+    folder = os.path.join(PROJECTS, key)
+    found = []
+    for name in os.listdir(folder):
+        path = os.path.join(folder, name)
+        if name.endswith(".jsonl") and os.path.getmtime(path) > since:
+            found.append(path)
+    return sorted(found, key=os.path.getmtime)
+
+
+# -- the digest --------------------------------------------------------------
+
+
+def typed_text(entry):
+    """What the user typed in a transcript entry, or "" if it is anything else."""
+    if entry.get("type") != "user" or entry.get("toolUseResult") is not None:
+        return ""
+    if entry.get("isMeta") or entry.get("isSidechain") or entry.get("isCompactSummary"):
+        return ""
+    if entry.get("entrypoint") == "sdk-cli":
+        return ""  # a tool's own prompt, such as Orca asking for a chat title
+    origin = (entry.get("origin") or {}).get("kind")
+    if origin not in (None, "human"):
+        return ""  # another session, a background task, an automatic continuation
+    content = (entry.get("message") or {}).get("content")
+    if isinstance(content, list):
+        if any(isinstance(part, dict) and part.get("type") == "tool_result" for part in content):
+            return ""
+        content = "\n".join(part.get("text", "") for part in content if isinstance(part, dict) and part.get("type") == "text")
+    if not isinstance(content, str):
+        return ""
+    text = INJECTED.sub("", content).strip()
+    return "" if text.startswith(NOT_TYPED) else text
+
+
+def reply_text(entry):
+    if entry.get("type") != "assistant" or entry.get("isSidechain"):
+        return ""
+    content = (entry.get("message") or {}).get("content")
+    if not isinstance(content, list):
+        return ""
+    return "\n".join(part.get("text", "") for part in content if isinstance(part, dict) and part.get("type") == "text").strip()
+
+
+def quote(text, limit):
+    """Text cut to a length, as a Markdown quote so its own headings stay inert."""
+    text = text.strip()
+    if len(text) > limit:
+        text = text[:limit].rstrip() + " [...]"
+    return "\n".join("> " + line for line in text.split("\n"))
+
+
+def session_digest(path):
+    """(markdown, typed message count) for one transcript."""
+    title = ""
+    turns = []  # [typed message, last reply to it]
+    days = []  # the dates the user typed on
+    try:
+        with open(path, errors="replace") as handle:
+            for line in handle:
+                try:
+                    entry = json.loads(line)
+                except ValueError:
+                    continue
+                if entry.get("type") == "ai-title":
+                    title = entry.get("aiTitle") or title
+                typed = typed_text(entry)
+                if typed:
+                    turns.append([typed, ""])
+                    days.append(str(entry.get("timestamp") or "")[:10])
+                elif turns:
+                    turns[-1][1] = reply_text(entry) or turns[-1][1]
+    except OSError:
+        return "", 0
+    if not turns:
+        return "", 0
+    days = sorted(day for day in days if day) or [datetime.date.fromtimestamp(os.path.getmtime(path)).isoformat()]
+    when = days[0] if days[0] == days[-1] else "%s to %s" % (days[0], days[-1])
+    lines = ["## %s - %s" % (when, title or "untitled session"), ""]
+    for typed, reply in turns:
+        lines += ["User:", quote(typed, USER_CHARS), ""]
+        if reply:
+            lines += ["Claude (excerpt):", quote(reply, REPLY_CHARS), ""]
+    text = "\n".join(lines)
+    if len(text) > SESSION_CHARS:
+        text = text[:SESSION_CHARS].rstrip() + "\n\n[session cut here]\n"
+    return text, len(turns)
+
+
+def build_digest(paths):
+    """(markdown, typed message count) for the newest sessions that fit."""
+    parts = []
+    messages = 0
+    size = 0
+    for path in reversed(paths):  # newest first, so the oldest are what is dropped
+        text, count = session_digest(path)
+        if not count:
+            continue
+        if size + len(text) > DIGEST_CHARS:
+            break
+        parts.append(text)
+        messages += count
+        size += len(text)
+    return "\n".join(reversed(parts)), messages
+
+
+# -- proposals ---------------------------------------------------------------
+
+
+def tree(folder):
+    """{relative path: bytes} of every file under a folder."""
+    files = {}
+    for root, _, names in os.walk(folder):
+        for name in names:
+            path = os.path.join(root, name)
+            with open(path, "rb") as handle:
+                files[os.path.relpath(path, folder)] = handle.read()
+    return files
+
+
+def tree_hash(folder):
+    digest = hashlib.sha256()
+    for name, data in sorted(tree(folder).items()):
+        digest.update(name.encode() + b"\0" + data + b"\0")
+    return digest.hexdigest()
+
+
+def line_count(files):
+    return sum(data.count(b"\n") for data in files.values())
+
+
+def compare(live, proposed):
+    """A summary of what a proposal changes, or None when it changes nothing."""
+    added = sorted(set(proposed) - set(live))
+    removed = sorted(set(live) - set(proposed))
+    changed = sorted(name for name in set(live) & set(proposed) if live[name] != proposed[name])
+    if not (added or removed or changed):
+        return None
+    before, after = line_count(live), line_count(proposed)
+    large = before > 0 and (before - after) / before > LARGE_DELETION
+    summary = "%d changed, %d added, %d removed, %d -> %d lines" % (len(changed), len(added), len(removed), before, after)
+    if large:
+        summary += " (LARGE DELETION: read it before applying)"
+    return {"added": added, "removed": removed, "changed": changed, "summary": summary, "large_deletion": large}
+
+
+class ModelError(Exception):
+    pass
+
+
+def find_claude():
+    return shutil.which("claude") or os.path.expanduser("~/.local/bin/claude")
+
+
+def run_model(folder):
+    """Let Claude edit the proposal in place. Raises if the run fails."""
+    with open(PROMPT) as handle:
+        prompt = handle.read()
+    command = [
+        find_claude(), "--print", prompt,
+        # No shell, no network, no settings, plugins, hooks, MCP or CLAUDE.md,
+        # and file tools confined to the working directory.
+        "--restricted", "--safe-mode", "--strict-mcp-config",
+        "--tools", "Read,Edit,Write,Glob,Grep",
+        "--permission-mode", "acceptEdits",
+        "--no-session-persistence",
+        "--output-format", "json",
+        "--model", MODEL,
+    ]
+    env = dict(os.environ, CLAUDE_CODE_DISABLE_AUTO_MEMORY="1")
+    result = subprocess.run(
+        command, cwd=folder, env=env, timeout=RUN_TIMEOUT_SECONDS,
+        stdin=subprocess.DEVNULL, capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        # Not CalledProcessError: its message would repeat the whole prompt.
+        said = (result.stderr.strip() or result.stdout.strip())[-400:]
+        raise ModelError("claude exited with status %d: %s" % (result.returncode, said or "no output"))
+    try:
+        outcome = json.loads(result.stdout)
+    except ValueError:
+        outcome = {}
+    denied = outcome.get("permission_denials") or []
+    if outcome.get("is_error") or denied:
+        raise ModelError("the run ended in error or was refused %d tool call(s)" % len(denied))
+    if not os.path.isfile(os.path.join(folder, "DREAM.md")):
+        # It always ends with a report, so no report means it could not write at all.
+        raise ModelError("the model wrote no report")
+
+
+def propose(key, digest, sessions, model=run_model):
+    """Build a proposal for a project. Returns its summary, or None if nothing changed."""
+    folder = proposal_dir(key)
+    shutil.rmtree(folder, ignore_errors=True)
+    shutil.copytree(memory_dir(key), os.path.join(folder, "memory"))
+    base_hash = tree_hash(memory_dir(key))
+    with open(os.path.join(folder, "sessions.md"), "w") as handle:
+        handle.write(digest)
+    try:
+        model(folder)
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+    # The digest was only the model's input; no second copy of the sessions is kept.
+    os.remove(os.path.join(folder, "sessions.md"))
+
+    proposed_dir = os.path.join(folder, "memory")
+    for name, data in tree(proposed_dir).items():
+        if data.strip() == DELETE_MARK.encode():
+            os.remove(os.path.join(proposed_dir, name))
+    result = compare(tree(memory_dir(key)), tree(proposed_dir))
+    if result is None:
+        # Its reasons still go to the log: a pass that found nothing should be checkable.
+        log("%s: the model's report: %s" % (key, read_report(key) or "(none written)"))
+        shutil.rmtree(folder)
+        return None
+    meta = dict(result, project=key, created=datetime.datetime.now().isoformat(timespec="seconds"), base=base_hash, sessions=sessions)
+    with open(os.path.join(folder, "meta.json"), "w") as handle:
+        json.dump(meta, handle, indent=2)
+    return result["summary"]
+
+
+def read_report(key):
+    try:
+        with open(os.path.join(proposal_dir(key), "DREAM.md")) as handle:
+            return handle.read().strip()
+    except OSError:
+        return ""
+
+
+def read_meta(key):
+    try:
+        with open(os.path.join(proposal_dir(key), "meta.json")) as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return None
+
+
+def pending():
+    if not os.path.isdir(PROPOSALS):
+        return []
+    return sorted(key for key in os.listdir(PROPOSALS) if read_meta(key))
+
+
+# -- commands ----------------------------------------------------------------
+
+
+def cmd_run(args):
+    os.makedirs(STATE_DIR, exist_ok=True)
+    lock = open(os.path.join(STATE_DIR, "lock"), "w")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        sys.exit("claude-dream: another run is in progress")
+    ensure_repo()
+    if snapshot("snapshot before a dream run"):
+        log("recorded the current memory in git")
+
+    state = read_state()
+    projects = projects_with_memory()
+    if args.project:
+        projects = [resolve(args.project, projects)]
+    waiting = set(pending())
+    candidates = []
+    for key in projects:
+        if key in waiting and not args.force:
+            log("%s: a proposal is already waiting for review" % key)
+            continue
+        since = 0 if args.force else state.get(key, {}).get("last_run", 0)
+        paths = sessions_since(key, since)
+        if paths:
+            candidates.append((os.path.getmtime(paths[-1]), key, paths))
+    candidates.sort(reverse=True)  # most recently used first
+
+    done = 0
+    failed = False
+    for _, key, paths in candidates:
+        if done >= args.limit:
+            log("%s: left for the next run (limit of %d reached)" % (key, args.limit))
+            continue
+        started = time.time()
+        digest, messages = build_digest(paths)
+        if messages < MIN_USER_MESSAGES and not args.force:
+            log("%s: only %d typed message(s) since the last pass, waiting for more" % (key, messages))
+            continue
+        log("%s: dreaming over %d session(s), %d typed message(s)" % (key, len(paths), messages))
+        try:
+            summary = propose(key, digest, len(paths))
+        except subprocess.TimeoutExpired:
+            log("%s: the model run took over %d minutes and was stopped, nothing proposed" % (key, RUN_TIMEOUT_SECONDS // 60))
+            failed = True
+            continue
+        except (ModelError, OSError) as error:
+            log("%s: the model run failed, nothing proposed (%s)" % (key, error))
+            failed = True
+            continue
+        done += 1
+        state[key] = {"last_run": started}
+        write_state(state)
+        log("%s: %s" % (key, "proposal ready: " + summary if summary else "nothing to change"))
+    return 1 if failed else 0
+
+
+def cmd_status(_args):
+    for key in pending():
+        meta = read_meta(key)
+        log("%s\n  %s, from %d session(s), created %s" % (key, meta["summary"], meta["sessions"], meta["created"]))
+    return 0
+
+
+def cmd_diff(args):
+    key = resolve(args.project, pending())
+    log((read_report(key) or "(the model wrote no report)") + "\n")
+    log(read_meta(key)["summary"] + "\n")
+    # --no-index compares two plain folders; its exit status 1 only means "they differ".
+    shown = subprocess.run(
+        ["git", "--no-pager", "diff", "--no-index", "--stat", "--patch", memory_dir(key), os.path.join(proposal_dir(key), "memory")],
+        check=False,
+    )
+    return 0 if shown.returncode in (0, 1) else shown.returncode
+
+
+def cmd_apply(args):
+    key = resolve(args.project, pending())
+    meta = read_meta(key)
+    live = memory_dir(key)
+    if tree_hash(live) != meta["base"] and not args.force:
+        sys.exit(
+            "claude-dream: the live memory of %s changed after this proposal was made. "
+            "Discard it and run again, or pass --force to overwrite those changes." % key
+        )
+    ensure_repo()
+    snapshot("snapshot before applying a dream to %s" % key)
+    proposed_dir = os.path.join(proposal_dir(key), "memory")
+    proposed = tree(proposed_dir)
+    for name in tree(live):
+        if name not in proposed:
+            os.remove(os.path.join(live, name))
+    for name, data in proposed.items():
+        path = os.path.join(live, name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as handle:
+            handle.write(data)
+    snapshot("dream: %s\n\n%s" % (key, meta["summary"]))
+    shutil.rmtree(proposal_dir(key))
+    log("applied to %s: %s" % (key, meta["summary"]))
+    return 0
+
+
+def cmd_discard(args):
+    key = resolve(args.project, pending())
+    shutil.rmtree(proposal_dir(key))
+    log("discarded the proposal for %s" % key)
+    return 0
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(prog="claude-dream", description=__doc__.split("\n\n")[0])
+    commands = parser.add_subparsers(dest="command", required=True)
+    run = commands.add_parser("run")
+    run.add_argument("--project")
+    run.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
+    run.add_argument("--force", action="store_true", help="ignore the last pass and any waiting proposal")
+    run.set_defaults(handler=cmd_run)
+    commands.add_parser("status").set_defaults(handler=cmd_status)
+    for name, handler in (("diff", cmd_diff), ("apply", cmd_apply), ("discard", cmd_discard)):
+        command = commands.add_parser(name)
+        command.add_argument("project", nargs="?")
+        command.set_defaults(handler=handler)
+        if name == "apply":
+            command.add_argument("--force", action="store_true", help="overwrite memory that changed since the proposal")
+    args = parser.parse_args(argv)
+    return args.handler(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

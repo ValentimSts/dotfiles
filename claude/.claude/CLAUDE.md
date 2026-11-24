@@ -115,8 +115,16 @@ things live.
 - **When the default branch moves** (a merge landed), the Stop hook blocks once and asks
   for the `memory-prune` skill: delete or re-date what the commits made stale, move
   anything ledger-shaped out of the index into a dated leaf, and leave the index no
-  larger than it was. Auto memory adds during the session; this pass is the only thing
-  that removes. Run it too when the user says "save context" or "wrap up".
+  larger than it was. Auto memory adds during the session; this pass and an applied
+  dream proposal are the only things that remove. Run it too when the user says "save
+  context" or "wrap up".
+- **Weekly consolidation**: the `claude-dream` timer reads what the user typed in the
+  week's sessions and proposes memory changes on a copy: lessons nobody wrote down,
+  duplicates merged, contradictions settled. Nothing live changes until it is applied.
+  The session-start hook says when a proposal is waiting: tell the user, show it with
+  `claude-dream diff`, and run `claude-dream apply` or `claude-dream discard` only on
+  their word. Every memory directory is versioned in `~/.claude/memory.git`, so an
+  applied pass can be reverted.
 - **Friction log**: `~/.claude/friction-log.md`, shared by every session on this machine,
   one line per incident: `YYYY-MM-DD | project | symptom as observed | what fixed it`.
   Append only when time was actually lost mid-session to tooling, an environment, a

@@ -35,4 +35,11 @@ if [ -f "$memdir/MEMORY.md" ]; then
     since=$(git rev-list --count --since="$written" "$default" 2>/dev/null)
     echo "  MEMORY.md written ${written%T*}; $since commit(s) on $default since. Facts about tips, PRs and branches older than that are claims."
 fi
+
+# A memory proposal from the weekly claude-dream pass, waiting for the user's review.
+proposal="${XDG_STATE_HOME:-$HOME/.local/state}/claude-dream/proposals/$(printf '%s' "$root" | tr '/' '-')/meta.json"
+if [ -f "$proposal" ]; then
+    echo "  A memory consolidation is waiting for review: $(jq -r '.summary' "$proposal")."
+    echo "  Tell the user once, early. \`claude-dream diff\` in this repo shows it; apply or discard only when they say so."
+fi
 exit 0

@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly memory consolidation for Claude Code projects
+
+[Timer]
+OnCalendar=Sun 11:00
+# A laptop that was off or asleep at that hour runs it when it next can.
+Persistent=true
+RandomizedDelaySec=15min
+
+[Install]
+WantedBy=timers.target

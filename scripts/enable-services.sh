@@ -18,7 +18,8 @@ done
 
 SYSTEM_COMMON=(NetworkManager bluetooth tlp)
 SYSTEM_GNOME=(gdm)
-USER_COMMON=(pipewire pipewire-pulse wireplumber)
+# claude-dream.timer lives in the claude package.
+USER_COMMON=(pipewire pipewire-pulse wireplumber claude-dream.timer)
 # hypridle and waybar ship their units; the others live in the systemd package.
 USER_HYPRLAND=(awww-daemon battery-warning eww hypridle keyboard-backlight-osd keyboard-osd waybar)
 
