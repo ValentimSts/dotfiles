@@ -25,48 +25,14 @@ return {
     -- local finders = require 'telescope.finders'
     -- local conf = require('telescope.config').values
 
-    -- files to ignore with `file_ignore_patterns`
-    -- if you want to ignore a file with `live_grep`, it needs to go here
-    bs.telescope.always_ignored =
-      vim.tbl_deep_extend('force', bs.telescope.always_ignored, {
-        '%.avi',
-        '%.avif',
-        '%.db',
-        '%.env%..*',
-        '%.env',
-        '%.flv',
-        '%.generated%.d%.ts',
-        '%.git/.*',
-        '%.heic',
-        '%.ico',
-        '%.jpeg',
-        '%.jpg',
-        '%.mkv',
-        '%.mov',
-        '%.mp3',
-        '%.mp4',
-        '%.png',
-        '%.svg',
-        '%.wav',
-        '%.webm$',
-        '%.webp',
-        '%.zip',
-        '.obsidian/.*',
-        '__snapshots__/.*', -- thuma ichabod
-        'deno%.lock',
-        'node_modules/.*',
-        'package%-lock%.json',
-        'pnpm%-lock%.yaml',
-        'yarn%.lock',
-      })
-
-    bs.telescope.ignored = vim.tbl_deep_extend('force', bs.telescope.ignored, {
+    -- Patterns for `file_ignore_patterns`. `always_ignored` applies to every
+    -- picker, live_grep included; `ignored` adds what only file pickers skip.
+    bs.telescope.always_ignored = vim.list_extend(bs.telescope.always_ignored, {
       '%.avi',
       '%.avif',
       '%.db',
       '%.env%..*',
       '%.env',
-      '%.eot',
       '%.flv',
       '%.generated%.d%.ts',
       '%.git/.*',
@@ -78,39 +44,39 @@ return {
       '%.mov',
       '%.mp3',
       '%.mp4',
-      '%.otf',
       '%.png',
       '%.svg',
-      '%.ttf',
       '%.wav',
       '%.webm$',
       '%.webp',
-      '%.woff',
-      '%.woff2',
       '%.zip',
-      '.gitkeep',
-      '.obsidian.vimrc',
       '.obsidian/.*',
-      '.yarn/.*',
-      '__generated__/.*', -- kcrw project
-      '__snapshots__/.*', -- thuma ichabod
-      '@types/.*', -- thuma ichabod
-      'vendor/.*', -- ignore odin vendor directories
+      '__snapshots__/.*',
       'deno%.lock',
-      'generated%-gql/.*', -- inkd project
-      'generated/graphql%.tsx', -- scoutus project
-      'go%.sum',
-      'graphql%.schema%.json',
       'node_modules/.*',
       'package%-lock%.json',
       'pnpm%-lock%.yaml',
-      'schema%.json',
       'yarn%.lock',
-      'zsh%-abbr/.*',
-      'zsh%-autosuggestions/.*',
-      'zsh%-completions/.*',
-      'zsh%-syntax%-highlighting/.*',
     })
+
+    bs.telescope.ignored = vim.list_extend(
+      vim.list_extend(bs.telescope.ignored, bs.telescope.always_ignored),
+      {
+        '%.eot',
+        '%.otf',
+        '%.ttf',
+        '%.woff',
+        '%.woff2',
+        '.gitkeep',
+        '.yarn/.*',
+        '__generated__/.*',
+        '@types/.*',
+        'vendor/.*',
+        'go%.sum',
+        'graphql%.schema%.json',
+        'schema%.json',
+      }
+    )
 
     -- Keymaps
     vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })

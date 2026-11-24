@@ -7,6 +7,10 @@
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
+# The first terminal after login lists the folder from a cold disk cache, which
+# can pass the 30 ms default and print a "scanning timed out" warning.
+scan_timeout = 200
+
 format = """
 $username\
 $hostname\

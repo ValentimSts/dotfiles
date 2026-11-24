@@ -5,6 +5,9 @@
 return {
   {
     "neovim/nvim-lspconfig",
+    -- Nothing here is needed on the start page; load with the first file.
+    event = { "BufReadPre", "BufNewFile" },
+    cmd = { "Mason", "LspInfo" },
     dependencies = {
       { "mason-org/mason.nvim", opts = {} },
       {

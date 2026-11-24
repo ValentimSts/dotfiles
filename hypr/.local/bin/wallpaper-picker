@@ -19,8 +19,7 @@ die() { printf 'wallpaper-picker: %s\n' "$*" >&2; exit 1; }
 
 # awww-daemon is started by systemd; give it a moment to open its socket.
 wait_for_daemon() {
-  local i
-  for i in $(seq 1 50); do
+  for _ in {1..50}; do
     if awww query >/dev/null 2>&1; then return 0; fi
     sleep 0.1
   done
