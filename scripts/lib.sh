@@ -8,9 +8,34 @@ DRY_RUN="${DRY_RUN:-0}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)}"
 
 # Stow package sets. "common" applies to every profile.
-PKGS_COMMON=(bash starship git gh kitty nvim neofetch vscode xdg color-schemes wallpapers)
+PKGS_COMMON=(bash starship git gh kitty nvim neofetch vscode xdg color-schemes wallpapers claude)
 PKGS_GNOME=()
-PKGS_HYPRLAND=(hypr waybar rofi eww libinput-gestures systemd)
+PKGS_HYPRLAND=(hypr waybar rofi eww icons systemd)
+
+# Packages Stow must link file by file, never as one directory symlink, because
+# other programs write into the same tree and what they write would otherwise
+# land in the repo: icons lives in ~/.local/share/icons/hicolor, where apps
+# install their own icons, and claude lives in ~/.claude, where Claude Code
+# keeps its settings, session history and credentials.
+# shellcheck disable=SC2034  # read by stow.sh
+PKGS_NO_FOLDING=(icons claude)
+
+# dconf schemas tracked under gnome/dconf/, as name=path: gnome-export.sh dumps
+# each path to <name>.ini and gnome-import.sh loads it back. Add a line to
+# track another schema.
+# shellcheck disable=SC2034  # read by the scripts that source this file
+DCONF_PATHS=(
+  "shell=/org/gnome/shell/"
+  "interface=/org/gnome/desktop/interface/"
+  "wm=/org/gnome/desktop/wm/"
+  "peripherals=/org/gnome/desktop/peripherals/"
+  "background=/org/gnome/desktop/background/"
+  "media-keys=/org/gnome/settings-daemon/plugins/media-keys/"
+  "power=/org/gnome/settings-daemon/plugins/power/"
+  "mutter=/org/gnome/mutter/"
+  "nautilus=/org/gnome/nautilus/"
+  "tweaks=/org/gnome/tweaks/"
+)
 
 if [ -t 1 ]; then
   C_RESET=$'\033[0m'; C_INFO=$'\033[1;34m'; C_OK=$'\033[1;32m'
@@ -53,5 +78,25 @@ packages_for_profile() {
   esac
 }
 
-# read_list <file>: prints non-empty, non-comment lines.
-read_list() { grep -vE '^\s*(#|$)' "$1" || true; }
+# read_list <file>...: prints non-empty, non-comment lines; a missing file is skipped.
+read_list() {
+  local f
+  for f in "$@"; do
+    [ -f "$f" ] || continue
+    grep -vE '^\s*(#|$)' "$f" || true
+  done
+}
+
+# package_lists <kind> <profile>: the list files for a kind (pacman, aur,
+# flatpak): packages/<kind>.txt for every profile, plus
+# packages/<kind>-<profile>.txt. "all" takes every profile's file.
+package_lists() {
+  local kind="$1" profile="$2" dir="$DOTFILES_DIR/packages"
+  printf '%s\n' "$dir/$kind.txt"
+  case "$profile" in
+    common) ;;
+    all) printf '%s\n' "$dir/$kind-gnome.txt" "$dir/$kind-hyprland.txt" ;;
+    gnome|hyprland) printf '%s\n' "$dir/$kind-$profile.txt" ;;
+    *) die "unknown profile: $profile (expected common, gnome, hyprland, all)" ;;
+  esac
+}

@@ -1,7 +1,6 @@
+# AUR packages for every profile.
 autofs
 brave-bin
-gnome-shell-pomodoro
-libinput-gestures
 neofetch
 pacfinder
 python-pywal16

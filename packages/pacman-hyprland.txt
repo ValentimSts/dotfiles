@@ -1,0 +1,25 @@
+# Official repo packages for the hyprland profile only.
+# python-gobject and evolution-data-server are for the eww calendar,
+# libpulse (pactl) for the quick settings panel, playerctl for the media keys,
+# xdg-desktop-portal-hyprland for screen sharing (Discord, browsers, OBS).
+awww
+blueman
+brightnessctl
+evolution-data-server
+hypridle
+hyprland
+hyprlock
+hyprpicker
+hyprshot
+hyprsunset
+libpulse
+network-manager-applet
+pamixer
+playerctl
+python-gobject
+rofi
+swaync
+waybar
+wofi
+xdg-desktop-portal-hyprland
+yad

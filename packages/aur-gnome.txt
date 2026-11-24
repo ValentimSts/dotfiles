@@ -1,0 +1,2 @@
+# AUR packages for the gnome profile only.
+gnome-shell-pomodoro

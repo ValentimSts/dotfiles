@@ -38,7 +38,7 @@ dry=(); [ "$DRY_RUN" = "1" ] && dry=(--dry-run)
 
 if [ "$skip_pkgs" = "0" ]; then
   log "step 1/5: packages"
-  "$S/install-packages.sh" "${dry[@]}"
+  "$S/install-packages.sh" --profile "$profile" "${dry[@]}"
 else
   log "step 1/5: packages (skipped)"
 fi

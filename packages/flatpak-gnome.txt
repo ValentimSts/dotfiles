@@ -1,0 +1,2 @@
+# Flatpaks for the gnome profile only.
+com.mattjakeman.ExtensionManager
