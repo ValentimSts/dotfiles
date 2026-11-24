@@ -27,16 +27,23 @@ to `~/.config/kitty/kitty.conf`.
 | `install.sh` | One-shot bootstrap. Runs the scripts below in order. |
 | `Makefile` | Shortcuts: `make stow`, `make gnome-export`, `make help`, ... |
 | `scripts/` | Individual steps. Each accepts `--help` and `--dry-run`. |
-| `packages/` | `pacman.txt`, `aur.txt`, `flatpak.txt`: one package per line. |
+| `packages/` | `pacman.txt`, `aur.txt`, `flatpak.txt` for every profile, plus `<kind>-gnome.txt` and `<kind>-hyprland.txt`: one package per line, curated by hand. |
 | `gnome/` | `dconf/*.ini` exports and `extensions.txt` (enabled extension UUIDs). |
 
 ### Packages by profile
 
 | Profile | Stow packages |
 | --- | --- |
-| common | `bash` `starship` `git` `gh` `kitty` `nvim` `neofetch` `vscode` `xdg` `color-schemes` `wallpapers` |
+| common | `bash` `starship` `git` `gh` `kitty` `nvim` `neofetch` `vscode` `xdg` `color-schemes` `wallpapers` `claude` |
 | gnome | common |
-| hyprland | common + `hypr` `waybar` `rofi` `eww` `libinput-gestures` `systemd` |
+| hyprland | common + `hypr` `waybar` `rofi` `eww` `icons` `systemd` |
+
+The `claude` package holds the hand-written part of the Claude Code setup in
+`~/.claude`: the global `CLAUDE.md`, the hooks and two skills. `settings.json`
+stays out of the repo, because Claude Code and Orca rewrite it; the hooks are
+registered there by hand (`hooks.SessionStart`, `hooks.Stop` and
+`hooks.PreToolUse`). `hooks/guard-destructive.py` blocks force pushes and the
+other destructive commands listed in `CLAUDE.md`; `make test` covers it.
 
 ## Day-to-day
 
@@ -46,7 +53,8 @@ to `~/.config/kitty/kitty.conf`.
 | Unlink everything for a profile | `make unstow PROFILE=hyprland` |
 | Added a new file inside a package | `make restow` |
 | Changed GNOME settings you want to keep | `make gnome-export`, then commit |
-| Installed or removed packages | `make export-packages`, then commit |
+| Installed or removed packages | `make packages-diff`, edit the right `packages/*.txt`, then commit |
+| Before pushing | `make check` (shellcheck, tests, colour scheme ports); CI runs the same |
 | New machine, GNOME only, no package install | `./install.sh --skip-packages` |
 
 Adding a new tool: create `<tool>/` mirroring the path under `$HOME`, add the name
@@ -162,10 +170,28 @@ and Neovim plugins such as smart-splits can drive windows from outside.
 | `super+m` | Exit Hyprland |
 | `print` / `shift+print` | Screenshot window / region (hyprshot) |
 | `ctrl+space` | Switch keyboard layout (us / pt) |
-| Volume, brightness and media keys | Handled by wpctl, brightnessctl and playerctl |
+| Volume, brightness and mic-mute keys | Change the level and show it in the middle of the screen for a moment (`eww/.config/eww/scripts/level-osd.py`) |
+| `fn+space` | Keyboard backlight, handled by the laptop itself; the level shows in the middle of the screen (`eww/.config/eww/scripts/keyboard-backlight-osd.py`, the `keyboard-backlight-osd` user service) |
+| Media keys | Handled by playerctl |
 
-Touchpad (libinput-gestures): three-finger swipe up or down toggles maximise,
-four-finger swipe up toggles fullscreen.
+The bar and the eww panels use GNOME's symbolic icons: Adwaita's, plus a
+few from the `icons` package (CPU, memory, Dark Style, brightness levels).
+Clicking the battery, network, brightness or volume opens a GNOME-style quick settings panel with
+sliders for volume, screen brightness and the keyboard backlight, toggles for Wi-Fi, VPN, Bluetooth, Night Light, Dark Style, Do Not
+Disturb, the keyboard layout and Airplane Mode, and a power menu.
+Dark Style switches the active colour scheme between its light and dark
+variants (`color-scheme mode`); the bar and panels follow it along with the
+apps.
+
+On battery power a warning opens in the middle of the screen at 20% and again
+at 5% (`eww/.config/eww/scripts/battery-warning.py`, the `battery-warning` user
+service). The 20% one closes by itself; the 5% one stays until clicked or the
+charger is in.
+
+Touchpad (Hyprland's own gestures, in `hyprland.lua`): three-finger swipe
+sideways changes workspace, three-finger swipe up or down toggles maximise,
+four-finger swipe up or down toggles fullscreen, four-finger pinch in closes
+the window and pinch out opens a terminal.
 
 ### Neovim
 
