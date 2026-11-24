@@ -7,17 +7,31 @@
 {
   "pulseaudio": {
     "scroll-step": 5,
-    "format": "{icon} {volume:03d}%",
-    "format-muted": " {volume:03d}%",
-    "format-icons": {
-      "headphone": "",
-      "hands-free": "",
-      "headset": "",
-      "phone": "󰏲",
-      "portable": "󰏲",
-      "car": "󰄋",
-      "default": ["", "", ""]
+    // The icon is drawn by styles/pulseaudio.css from these classes and from
+    // "muted". A state applies while the volume is at or below its number, and
+    // the lowest matching one wins. The value is padded to three digits with
+    // the padding zeros dimmed, so each digit count needs its own format
+    // (low-1 is 1 to 9), and Waybar looks muted ones up separately.
+    "states": {
+      "silent": 0,
+      "low-1": 9,
+      "low": 33,
+      "medium": 66,
+      "high": 99,
+      "max": 100
     },
+    "format": "{volume}%",
+    "format-muted": "{volume}%",
+    "format-silent": "<span alpha='40%'>00</span>{volume}%",
+    "format-low-1": "<span alpha='40%'>00</span>{volume}%",
+    "format-low": "<span alpha='40%'>0</span>{volume}%",
+    "format-medium": "<span alpha='40%'>0</span>{volume}%",
+    "format-high": "<span alpha='40%'>0</span>{volume}%",
+    "format-muted-silent": "<span alpha='40%'>00</span>{volume}%",
+    "format-muted-low-1": "<span alpha='40%'>00</span>{volume}%",
+    "format-muted-low": "<span alpha='40%'>0</span>{volume}%",
+    "format-muted-medium": "<span alpha='40%'>0</span>{volume}%",
+    "format-muted-high": "<span alpha='40%'>0</span>{volume}%",
     "on-click": "~/.config/waybar/scripts/control-panel.sh"
   }
 }

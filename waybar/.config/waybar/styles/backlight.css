@@ -3,5 +3,13 @@
 #backlight {
   margin: 0;
   padding: 0 12px;
-  color: @background;
+  color: @foreground;
+  background-image: -gtk-icontheme('display-brightness-100-symbolic');
 }
+
+/* The sun fills up with the brightness, from the icons package; the classes
+   come from the states in modules/backlight.jsonc. */
+#backlight.quarter-1,
+#backlight.quarter        { background-image: -gtk-icontheme('display-brightness-25-symbolic'); }
+#backlight.half           { background-image: -gtk-icontheme('display-brightness-50-symbolic'); }
+#backlight.three-quarters { background-image: -gtk-icontheme('display-brightness-75-symbolic'); }

@@ -3,5 +3,44 @@
 #battery {
   margin: 0;
   padding: 0 12px;
-  color: @background;
+  color: @foreground;
+  background-image: -gtk-icontheme('battery-missing-symbolic');
 }
+
+/* GNOME's battery icons in steps of ten; the lN classes come from the states in
+   modules/battery.jsonc. Charging and plugged in (on the charger but not
+   charging) have their own sets, and a full battery shows the "charged" one. */
+#battery.l0 { background-image: -gtk-icontheme('battery-level-0-symbolic'); }
+#battery.l10 { background-image: -gtk-icontheme('battery-level-10-symbolic'); }
+#battery.l20 { background-image: -gtk-icontheme('battery-level-20-symbolic'); }
+#battery.l30 { background-image: -gtk-icontheme('battery-level-30-symbolic'); }
+#battery.l40 { background-image: -gtk-icontheme('battery-level-40-symbolic'); }
+#battery.l50 { background-image: -gtk-icontheme('battery-level-50-symbolic'); }
+#battery.l60 { background-image: -gtk-icontheme('battery-level-60-symbolic'); }
+#battery.l70 { background-image: -gtk-icontheme('battery-level-70-symbolic'); }
+#battery.l80 { background-image: -gtk-icontheme('battery-level-80-symbolic'); }
+#battery.l90 { background-image: -gtk-icontheme('battery-level-90-symbolic'); }
+#battery.l100 { background-image: -gtk-icontheme('battery-level-100-symbolic'); }
+#battery.charging.l0 { background-image: -gtk-icontheme('battery-level-0-charging-symbolic'); }
+#battery.charging.l10 { background-image: -gtk-icontheme('battery-level-10-charging-symbolic'); }
+#battery.charging.l20 { background-image: -gtk-icontheme('battery-level-20-charging-symbolic'); }
+#battery.charging.l30 { background-image: -gtk-icontheme('battery-level-30-charging-symbolic'); }
+#battery.charging.l40 { background-image: -gtk-icontheme('battery-level-40-charging-symbolic'); }
+#battery.charging.l50 { background-image: -gtk-icontheme('battery-level-50-charging-symbolic'); }
+#battery.charging.l60 { background-image: -gtk-icontheme('battery-level-60-charging-symbolic'); }
+#battery.charging.l70 { background-image: -gtk-icontheme('battery-level-70-charging-symbolic'); }
+#battery.charging.l80 { background-image: -gtk-icontheme('battery-level-80-charging-symbolic'); }
+#battery.charging.l90 { background-image: -gtk-icontheme('battery-level-90-charging-symbolic'); }
+#battery.charging.l100 { background-image: -gtk-icontheme('battery-level-100-charging-symbolic'); }
+#battery.plugged.l0 { background-image: -gtk-icontheme('battery-level-0-plugged-in-symbolic'); }
+#battery.plugged.l10 { background-image: -gtk-icontheme('battery-level-10-plugged-in-symbolic'); }
+#battery.plugged.l20 { background-image: -gtk-icontheme('battery-level-20-plugged-in-symbolic'); }
+#battery.plugged.l30 { background-image: -gtk-icontheme('battery-level-30-plugged-in-symbolic'); }
+#battery.plugged.l40 { background-image: -gtk-icontheme('battery-level-40-plugged-in-symbolic'); }
+#battery.plugged.l50 { background-image: -gtk-icontheme('battery-level-50-plugged-in-symbolic'); }
+#battery.plugged.l60 { background-image: -gtk-icontheme('battery-level-60-plugged-in-symbolic'); }
+#battery.plugged.l70 { background-image: -gtk-icontheme('battery-level-70-plugged-in-symbolic'); }
+#battery.plugged.l80 { background-image: -gtk-icontheme('battery-level-80-plugged-in-symbolic'); }
+#battery.plugged.l90 { background-image: -gtk-icontheme('battery-level-90-plugged-in-symbolic'); }
+#battery.plugged.l100 { background-image: -gtk-icontheme('battery-level-100-plugged-in-symbolic'); }
+#battery.full { background-image: -gtk-icontheme('battery-level-100-charged-symbolic'); }

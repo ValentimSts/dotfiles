@@ -7,9 +7,25 @@
 {
   "backlight": {
     "device": "amdgpu_bl1",
-    "format": "{icon} {percent:03d}%",
+    // The value is padded to three digits, with the padding zeros dimmed, so
+    // it needs a format per digit count. The states also pick the icon
+    // (styles/backlight.css): a sun filled a quarter, half, three quarters or
+    // whole. The highest state the brightness has reached applies.
+    "states": {
+      "quarter-1": 0,
+      "quarter": 10,
+      "half": 26,
+      "three-quarters": 51,
+      "full": 76,
+      "max": 100
+    },
+    "format": "{percent}%",
+    "format-quarter-1": "<span alpha='40%'>00</span>{percent}%",
+    "format-quarter": "<span alpha='40%'>0</span>{percent}%",
+    "format-half": "<span alpha='40%'>0</span>{percent}%",
+    "format-three-quarters": "<span alpha='40%'>0</span>{percent}%",
+    "format-full": "<span alpha='40%'>0</span>{percent}%",
     "tooltip": false,
-    "on-click": "~/.config/waybar/scripts/control-panel.sh",
-    "format-icons": ["󰃟", "󰃠"]
+    "on-click": "~/.config/waybar/scripts/control-panel.sh"
   }
 }

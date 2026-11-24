@@ -6,9 +6,9 @@
 @import url("styles/group/hardware.css");
 @import url("styles/group/rightgroup.css");
 
-/* Paper: the bar is drawn inverted (text colour as background, background
-   colour as text) and every module sits in a 2 px ruled box with square
-   corners; adjacent boxes share their rule. */
+/* The bar follows the colour scheme's mode: a translucent strip in the
+   scheme's background colour with its text colour on top, so Dark Style
+   makes it dark. Rounded bottom corners, blurred by a Hyprland layer rule. */
 
 * {
   border-radius: 0px;
@@ -26,12 +26,11 @@
    corner would be painted black instead of showing the wallpaper. */
 window#waybar {
   background: transparent;
-  color: @background;
+  color: @foreground;
 }
 
 window#waybar > box {
-  background: alpha(@foreground, 0.85);
-  border-bottom: 2px solid @background;
+  background: alpha(@background, 0.85);
   /* Overrides the square-corner `*` rule above for the bar itself. */
   border-radius: 0 0 12px 12px;
 }
@@ -52,37 +51,57 @@ window#waybar > box {
 }
 
 tooltip {
-  background-color: @foreground;
-  border: 2px solid @background;
+  background-color: @background;
+  border: 2px solid @foreground;
 }
 
 tooltip label {
-  color: @background;
+  color: @foreground;
+}
+
+/* Icons are GNOME's own symbolic ones (Adwaita, plus the icons package), drawn
+   as each module's background image so that GTK recolours them to the
+   module's text colour. The images themselves are set in styles/. Modules with
+   a value carry the icon at their left; icon-only modules centre it. */
+#battery, #network, #backlight, #pulseaudio, #cpu, #memory,
+#custom-hardware, #custom-power {
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+}
+
+/* 12 px edge, 16 px icon, 8 px gap before the value. */
+#battery, #backlight, #pulseaudio, #cpu, #memory {
+  background-position: 12px center;
+  padding-left: 36px;
+}
+
+#network, #custom-hardware, #custom-power {
+  background-position: center;
 }
 
 /* Hover: a faint wash behind the module, a pill for text modules and a
    circle for icon-only ones. The icon-only modules are given a square box
    (30 x 30 px) and carry their spacing as margin,
    so the circle is round. Workspace dots brighten instead, since their
-   brightness is their state. */
-#clock, #custom-hardware, #cpu, #memory, #language,
-#battery, #network, #backlight, #pulseaudio, #custom-power,
+   brightness is their state. Network, brightness, volume and battery sit in
+   the quick settings pill, which highlights as a whole
+   (styles/group/quicksettings.css). */
+#clock, #custom-hardware, #cpu, #memory, #language, #custom-power,
 #workspaces button {
   transition: background-color 150ms ease, color 150ms ease;
 }
 
 /* The radius is always on and only the wash fades, so leaving a module
    never shows a square mid-transition. */
-#clock, #cpu, #memory, #language, #battery, #backlight, #pulseaudio {
+#clock, #cpu, #memory, #language {
   border-radius: 999px;
 }
 
-#clock:hover, #cpu:hover, #memory:hover, #language:hover,
-#battery:hover, #backlight:hover, #pulseaudio:hover {
-  background-color: alpha(@background, 0.15);
+#clock:hover, #cpu:hover, #memory:hover, #language:hover {
+  background-color: alpha(@foreground, 0.15);
 }
 
-#custom-hardware, #network, #custom-power {
+#custom-hardware, #custom-power {
   /* label is 24 px tall; 3 px of vertical padding and a 30 px content width
      make a 30 x 30 box for the circle */
   padding: 3px 0;
@@ -94,14 +113,13 @@ tooltip label {
 /* Custom modules are eventbox > box > label#custom-x, and Waybar sets the
    hover state on the box, so #custom-x:hover never matches: the box is hovered
    but unnamed, the label is named but not hovered. */
-#network:hover,
 box:hover > #custom-hardware,
 box:hover > #custom-power {
-  background-color: alpha(@background, 0.15);
+  background-color: alpha(@foreground, 0.15);
 }
 
 #workspaces button:hover {
-  background-color: alpha(@background, 0.15);
-  color: @background;
+  background-color: alpha(@foreground, 0.15);
+  color: @foreground;
 }
 

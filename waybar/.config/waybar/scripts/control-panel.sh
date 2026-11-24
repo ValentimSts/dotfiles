@@ -6,4 +6,5 @@
 
 state=$(~/.config/eww/scripts/qs-state.py --once)
 eww update qs="$state" qs-open=""
-exec eww open-many --toggle popup-closer quick-settings
+# --no-daemonize: never start a second eww daemon if the service is slow.
+exec eww --no-daemonize open-many --toggle popup-closer quick-settings

@@ -6,7 +6,7 @@
 
 {
   "memory": {
-    "format": " {percentage}%",
+    "format": "{percentage}%",
     "interval": 1,
 
     "states": {

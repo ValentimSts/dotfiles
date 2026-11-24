@@ -1,7 +1,7 @@
 @import url("../../palette.css");
 
 #custom-quit {
-    color: @background;
+    color: @foreground;
 }
 
 #custom-quit:hover {

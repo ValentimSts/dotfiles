@@ -5,4 +5,5 @@
 
 month=$(~/.config/eww/scripts/calendar-month.py)
 eww update cal="$month" cal-page-0="$month" cal-page=0 cal-transition=none cal-selected=""
-exec eww open-many --toggle popup-closer calendar
+# --no-daemonize: never start a second eww daemon if the service is slow.
+exec eww --no-daemonize open-many --toggle popup-closer calendar
