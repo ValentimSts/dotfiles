@@ -30,9 +30,6 @@ case "$action" in
   volume-mute)
     wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
     ;;
-  mic-mute)
-    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
-    ;;
   sink)
     [[ $arg =~ ^[0-9]+$ ]] || exit 1
     pactl set-default-sink "$arg"
@@ -40,6 +37,11 @@ case "$action" in
   brightness)
     is_number "$arg" || exit 1
     brightnessctl --quiet set "${arg%.*}%"
+    ;;
+  keyboard-backlight)
+    # One of the backlight's own levels (0 is off), not a percentage.
+    is_number "$arg" || exit 1
+    brightnessctl --quiet --device='*kbd_backlight' set "${arg%.*}"
     ;;
   expand)
     # expand <section> <section open now>; opening it again closes it.
@@ -72,6 +74,19 @@ case "$action" in
   wifi-settings)
     launch kitty -e nmtui
     ;;
+  vpn)
+    # vpn up|down <uuid>...: the tile passes every active VPN, or the first one.
+    case "$arg" in up | down) ;; *) exit 1 ;; esac
+    shift 2
+    for uuid in "$@"; do
+      is_uuid "$uuid" || exit 1
+    done
+    # Detached: bringing a VPN up can wait on a password prompt from nm-applet
+    # for longer than the click's timeout.
+    for uuid in "$@"; do
+      setsid -f nmcli connection "$arg" uuid "$uuid" >/dev/null 2>&1
+    done
+    ;;
   bluetooth-toggle)
     if bluetoothctl show | grep -q 'Powered: yes'; then
       bluetoothctl power off >/dev/null
@@ -89,11 +104,34 @@ case "$action" in
   bluetooth-settings)
     launch blueman-manager
     ;;
-  keyboard-next)
-    # This keyboard alone, like Ctrl+Space: with "all", a mouse's keyboard
-    # interface would leave its first layout and misreport itself on reconnect.
+  keyboard-next | keyboard-layout)
+    # keyboard-next <device>, keyboard-layout <device> <index>. This keyboard
+    # alone, like Ctrl+Space: with "all", a mouse's keyboard interface would
+    # leave its first layout and misreport itself on reconnect.
     [[ $arg =~ ^[a-z0-9-]+$ ]] || exit 1
-    hyprctl switchxkblayout "$arg" next >/dev/null
+    layout=next
+    if [ "$action" = keyboard-layout ]; then
+      layout=${3:-}
+      [[ $layout =~ ^[0-9]+$ ]] || exit 1
+    fi
+    hyprctl switchxkblayout "$arg" "$layout" >/dev/null
+    ;;
+  airplane)
+    # GNOME's Airplane Mode: every radio off, or every radio back.
+    if [ "$(cat /sys/class/rfkill/rfkill*/soft 2>/dev/null | sort -u)" = 1 ]; then
+      rfkill unblock all
+    else
+      rfkill block all
+    fi
+    ;;
+  dark-style)
+    # color-scheme reloads eww, which would kill this script mid-way.
+    if [[ $(readlink ~/.local/state/color-schemes/active) == */dark ]]; then
+      mode=light
+    else
+      mode=dark
+    fi
+    setsid -f ~/.local/bin/color-scheme mode "$mode" >/dev/null 2>&1
     ;;
   dnd)
     swaync-client -d >/dev/null
@@ -114,9 +152,18 @@ case "$action" in
   lock)
     launch hyprlock
     ;;
-  power-menu)
-    eww close quick-settings
-    eww open power-menu
+  screenshot)
+    # A moment for the panel to leave the screen before hyprshot freezes it.
+    launch sh -c 'sleep 0.2; exec hyprshot -m region'
+    ;;
+  power)
+    case "$arg" in
+      suspend) launch systemctl suspend ;;
+      reboot) launch systemctl reboot ;;
+      poweroff) launch systemctl poweroff ;;
+      logout) launch hyprctl dispatch 'hl.dsp.exit()' ;;
+      *) exit 1 ;;
+    esac
     ;;
   *)
     exit 1

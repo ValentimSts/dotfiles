@@ -10,48 +10,15 @@ import json
 import os
 import select
 import socket
-import subprocess
 import sys
 import time
-import xml.etree.ElementTree as ElementTree
+
+from osd import eww
+from readings import layout_options, read_keyboards
 
 WINDOW = "keyboard-osd"
 SHOW_SECONDS = 1.2
 EVENT_PREFIX = "activelayout>>"
-XKB_REGISTRY = "/usr/share/X11/xkb/rules/evdev.xml"
-
-
-def eww(*args):
-    subprocess.run(["eww", *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def read_keyboards():
-    output = subprocess.run(
-        ["hyprctl", "devices", "-j"], capture_output=True, text=True
-    ).stdout
-    return json.loads(output)["keyboards"]
-
-
-def read_layout_labels():
-    """Map xkb layout ids to (language code, name): us -> (EN, English (US))."""
-    labels = {}
-    for item in ElementTree.parse(XKB_REGISTRY).findall("./layoutList/layout/configItem"):
-        labels[item.findtext("name")] = (
-            item.findtext("shortDescription", item.findtext("name")).upper(),
-            item.findtext("description"),
-        )
-    return labels
-
-
-def layout_options(keyboard, labels):
-    options = []
-    for index, layout in enumerate(keyboard["layout"].split(",")):
-        layout = layout.strip()
-        code, name = labels.get(layout, (layout.upper(), layout))
-        options.append(
-            {"code": code, "name": name, "active": index == keyboard["active_layout_index"]}
-        )
-    return options
 
 
 def layout_events(lines):
@@ -76,7 +43,6 @@ def main():
     # a device we already know changing layout, not any event that names a
     # layout different from the last one.
     layouts = {k["name"]: k["active_keymap"] for k in read_keyboards()}
-    labels = read_layout_labels()
     shown = None
     hide_at = None
     pending = ""
@@ -106,7 +72,9 @@ def main():
             keyboard = next((k for k in read_keyboards() if k["name"] == device), None)
             if keyboard is None:
                 continue  # it detached again before we could read it
-            options = json.dumps(layout_options(keyboard, labels))
+            options = json.dumps(
+                [{"code": o["code"], "name": o["name"], "active": o["active"]} for o in layout_options(keyboard)]
+            )
             if options != shown:
                 eww("update", f"osd-options={options}")
                 shown = options
