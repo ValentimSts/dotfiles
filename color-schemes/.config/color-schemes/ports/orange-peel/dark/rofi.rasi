@@ -6,4 +6,13 @@
     selected:                    #d3ab6a;
     active:                      #9aa65a;
     urgent:                      #d2694f;
+
+    /* Translucent mixes (#rrggbbaa), in step with eww's popups: the panel
+       itself, its hairline border, the wash behind a field, the stronger one
+       behind the selected row, and secondary text. */
+    panel:                       #1b1e12d9;
+    panel-border:                #e6d5b826;
+    wash:                        #e6d5b81f;
+    wash-strong:                 #e6d5b838;
+    foreground-dim:              #e6d5b8bf;
 }

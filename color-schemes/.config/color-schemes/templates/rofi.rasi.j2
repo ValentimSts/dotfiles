@@ -6,4 +6,13 @@
     selected:                    {{ roles.accent }};
     active:                      {{ roles.success }};
     urgent:                      {{ roles.error }};
+
+    /* Translucent mixes (#rrggbbaa), in step with eww's popups: the panel
+       itself, its hairline border, the wash behind a field, the stronger one
+       behind the selected row, and secondary text. */
+    panel:                       {{ roles.bg }}d9;
+    panel-border:                {{ roles.text }}26;
+    wash:                        {{ roles.text }}1f;
+    wash-strong:                 {{ roles.text }}38;
+    foreground-dim:              {{ roles.text }}bf;
 }

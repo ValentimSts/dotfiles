@@ -1,184 +1,142 @@
-// @import ...
+// The app launcher (super+space), drawn like the eww panels: a translucent
+// rounded sheet, a pill for the search field and a soft wash on the selected
+// row. wallpaper.rasi builds on this file for the wallpaper picker.
 
-/*****----- Configuration -----*****/
 configuration {
-	modi:                       "drun,run,filebrowser,window";
+    modi:                       "drun,run,filebrowser,window";
     show-icons:                 true;
-	drun-display-format:        "{name}";
-	window-format:              "{w} · {c} · {t}";
+    // The generic name ("Web Browser") is searched too, so it is shown: a row
+    // that matched on it would otherwise look like a wrong result.
+    drun-display-format:        "{name}[  <span alpha='75%' size='small'>{generic}</span>]";
+    window-format:              "{w} · {c} · {t}";
+    // One click opens a row, as in any menu. No hover-select: the row under a
+    // resting pointer would replace the best match as soon as the list opens.
+    me-select-entry:            "";
+    me-accept-entry:            "MousePrimary";
 }
 
-/*****----- Global Properties -----*****/
-// Colours (background, background-alt, foreground, selected, active, urgent)
-// come from colors.rasi, a symlink into the active colour scheme's ports.
+// Colours come from colors.rasi, a symlink into the active colour scheme's
+// ports: the scheme's own colours plus the translucent ones used here.
 @import "colors"
 
 * {
-    font:                        "JetBrains Mono Nerd Font 10";
-}
-
-/*****----- Main Window -----*****/
-window {
-    /* properties for window widget */
-    transparency:                "real";
-    location:                    center;
-    anchor:                      center;
-    fullscreen:                  false;
-    width:                       500px;
-    x-offset:                    0px;
-    y-offset:                    0px;
-
-    /* properties for all widgets */
-    enabled:                     true;
-    border-radius:               5px;
-    cursor:                      "default";
-    background-color:            @background;
-}
-
-/*****----- Main Box -----*****/
-mainbox {
-    enabled:                     true;
-    spacing:                     0px;
+    font:                        "Adwaita Sans 12";
     background-color:            transparent;
-    orientation:                 horizontal;
-    children:                    [ "imagebox", "listbox" ];
-}
-
-imagebox {
-    background-color:            transparent;
-    background-image:            url("~/.config/rofi/wallpaper.jpg", height);
-    orientation:                 vertical;
-    children:                    [ "inputbar" ];
-}
-
-listbox {
-    spacing:                     0px;
-    padding:                     0px;
-    background-color:            transparent;
-    orientation:                 vertical;
-    children:                    [ "message", "listview" ];
-}
-
-/*****----- Inputbar -----*****/
-inputbar {
-    enabled:                     true;
-    spacing:                     0px;
-    padding:                     12px;
-    border-radius:               3px;
-    background-color:            @background-alt;
     text-color:                  @foreground;
-    children:                    [ "textbox-prompt-colon", "entry" ];
 }
 
-textbox-prompt-colon {
-    enabled:                     true;
+window {
+    // Hung from the top, so the search field stays put while results change.
+    location:                    north;
+    anchor:                      north;
+    y-offset:                    22%;
+    width:                       640px;
+    border:                      1px;
+    border-color:                @panel-border;
+    border-radius:               26px;
+    background-color:            @panel;
+    cursor:                      "default";
+}
+
+mainbox {
+    padding:                     16px;
+    spacing:                     12px;
+    children:                    [ "inputbar", "message", "listview" ];
+}
+
+inputbar {
+    padding:                     10px 18px;
+    spacing:                     12px;
+    // More than half its height, which rofi draws as a pill.
+    border-radius:               100px;
+    background-color:            @wash;
+    children:                    [ "textbox-search", "entry" ];
+}
+
+// The magnifier is a glyph from the Nerd Font, written as a Pango entity to
+// keep this file ASCII. As text it takes the scheme's colour, which an icon
+// cannot: rofi's icon tint keeps the icon's own brightness.
+textbox-search {
     expand:                      false;
-    str:                         ""; // TODO: use a search icon in the future.
-    background-color:            inherit;
-    text-color:                  inherit;
+    markup:                      true;
+    content:                     "&#xf0349;";
+    font:                        "RobotoMono Nerd Font Propo 17";
+    text-color:                  @foreground-dim;
+    vertical-align:              0.5;
 }
 
 entry {
-    enabled:                     true;
-    background-color:            inherit;
-    text-color:                  inherit;
+    font:                        "Adwaita Sans 13";
     cursor:                      text;
-    placeholder:                 "Search";
-    placeholder-color:           inherit;
+    vertical-align:              0.5;
+    placeholder:                 "Search apps";
+    placeholder-color:           @foreground-dim;
 }
 
-
-/*****----- Listview -----*****/
 listview {
-    enabled:                     true;
     columns:                     1;
-    lines:                       8;
-    cycle:                       true;
-    dynamic:                     true;
-    scrollbar:                   false;
-    layout:                      vertical;
-    reverse:                     false;
+    lines:                       7;
+    // Always seven rows tall: a window that resizes on every keystroke is
+    // harder to read than one with empty space under a short list.
     fixed-height:                true;
-    fixed-columns:               true;
-    
-    background-color:            transparent;
-    text-color:                  @foreground;
+    cycle:                       true;
+    scrollbar:                   false;
+    spacing:                     2px;
+    border:                      0px;
     cursor:                      "default";
 }
 
-/*****----- Elements -----*****/
 element {
-    enabled:                     true;
-    spacing:                     15px;
-    padding:                     6px;
-    border-radius:               3px;
-    background-color:            transparent;
-    text-color:                  @foreground;
+    padding:                     8px 10px;
+    spacing:                     14px;
+    border-radius:               10px;
     cursor:                      pointer;
 }
 
-element normal.normal {
-    background-color:            inherit;
-    text-color:                  inherit;
-}
-
-element normal.urgent {
-    background-color:            @urgent;
+// Every row looks the same until it is selected: no zebra stripes.
+element normal.normal,
+element alternate.normal,
+element normal.active,
+element alternate.active,
+element normal.urgent,
+element alternate.urgent {
+    background-color:            transparent;
     text-color:                  @foreground;
 }
 
-element normal.active {
-    background-color:            @active;
-    text-color:                  @foreground;
-}
-
-element selected.normal {
-    background-color:            @selected;
-    text-color:                  @background;
-}
-
+// The selection is the only focus mark there is, so it gets the stronger wash.
+element selected.normal,
+element selected.active,
 element selected.urgent {
-    background-color:            @urgent;
-    text-color:                  @foreground;
-}
-
-element selected.active {
-    background-color:            @urgent;
+    background-color:            @wash-strong;
     text-color:                  @foreground;
 }
 
 element-icon {
-    background-color:            transparent;
-    text-color:                  inherit;
     size:                        32px;
     cursor:                      inherit;
 }
 
 element-text {
-    background-color:            transparent;
     text-color:                  inherit;
+    // The part of a name that matched what was typed.
+    highlight:                   bold;
     cursor:                      inherit;
     vertical-align:              0.5;
-    horizontal-align:            0.0;
 }
 
-/*****----- Message -----*****/
+// What rofi says instead of a list, such as an error or a script's message.
 message {
-    background-color:            transparent;
+    padding:                     0px 6px;
 }
 
 textbox {
-    padding:                     15px;
-    border-radius:               10px;
-    background-color:            @background-alt;
-    text-color:                  @foreground;
-    vertical-align:              0.5;
-    horizontal-align:            0.0;
+    text-color:                  @foreground-dim;
 }
 
 error-message {
-    padding:                     15px;
-    border-radius:               20px;
-    background-color:            @background;
+    padding:                     16px;
+    border-radius:               26px;
+    background-color:            @panel;
     text-color:                  @foreground;
 }

@@ -354,6 +354,19 @@ hl.layer_rule({
 })
 
 hl.layer_rule({
+    -- The launcher and the wallpaper picker, translucent like the eww panels.
+    -- rofi's surface covers the whole screen to catch clicks outside the menu,
+    -- so ignore_alpha has to skip that transparent area or all of it blurs.
+    -- No animation: a launcher should be there the moment the key is pressed.
+    name  = "blur-rofi",
+    match = { namespace = "^rofi$" },
+
+    blur         = true,
+    ignore_alpha = 0.5,
+    no_anim      = true,
+})
+
+hl.layer_rule({
     -- These panels slide sections open by growing the window. Animating the
     -- window's box as well draws the taller content squeezed into the smaller
     -- box, which squashes the whole panel for the length of the slide.
