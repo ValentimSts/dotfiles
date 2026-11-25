@@ -1,0 +1,35 @@
+@import url("../../palette.css");
+
+@import url("../network.css");
+@import url("../backlight.css");
+@import url("../pulseaudio.css");
+@import url("../battery.css");
+
+/* One pill around the whole group, like GNOME's status area: invisible at
+   rest, shown on hover. Waybar marks the group hovered while the pointer is
+   over any module in it, so the pill appears as a whole rather than one module
+   at a time. The radius is always on and only the wash fades in. */
+#quicksettings {
+  margin-left: 7px;
+  border-radius: 999px;
+  background-color: transparent;
+  transition: background-color 150ms ease;
+}
+
+#quicksettings:hover {
+  background-color: alpha(@foreground, 0.15);
+}
+
+/* Each module fills the pill's full height, so every point in it takes the
+   click. 24 px label + 3 px above and below = a 30 px pill. */
+#network, #backlight, #pulseaudio, #battery {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+/* Network is icon only: a 16 px content box with 12 px either side. */
+#network {
+  min-width: 16px;
+  padding-left: 12px;
+  padding-right: 12px;
+}

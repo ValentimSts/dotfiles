@@ -1,0 +1,2 @@
+# AUR packages for the hyprland profile only.
+eww

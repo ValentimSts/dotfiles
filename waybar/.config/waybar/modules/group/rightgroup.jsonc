@@ -1,29 +1,20 @@
 // ------------------
 //
-//  Backlight
+//  Right Group
 //
 // ------------------
 
 {
   "include": [
     "~/.config/waybar/modules/language.jsonc",
-    "~/.config/waybar/modules/battery.jsonc",
-    "~/.config/waybar/modules/network.jsonc",
-    "~/.config/waybar/modules/pulseaudio.jsonc",
-    "~/.config/waybar/modules/backlight.jsonc",
-    "~/.config/waybar/modules/custom/power.jsonc"
+    "~/.config/waybar/modules/group/quicksettings.jsonc"
   ],
 
   "group/rightgroup": {
-    "spacing": 100,
     "orientation": "horizontal",
     "modules": [
       "hyprland/language",
-      "battery",
-      "network",
-      "backlight",
-      "pulseaudio",
-      "custom/power"
+      "group/quicksettings"
     ]
   }
 }

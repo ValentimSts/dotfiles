@@ -10,17 +10,17 @@
     (box :orientation "h"
          :space-evenly false
          :spacing 12
-      (label :class "power-icon" :text icon)
+      (image :class "power-icon" :icon icon :icon-size "menu")
       (label :class "power-label" :text label :halign "start"))))
 
 (defwidget power-menu []
   (box :class "power-menu"
        :orientation "v"
        :space-evenly false
-    (power-item :icon "⏻" :label "Shutdown" :class "shutdown" :cmd "systemctl poweroff")
-    (power-item :icon "󰜉" :label "Reboot"   :class "reboot"   :cmd "systemctl reboot")
-    (power-item :icon "󰤄" :label "Suspend"  :class "suspend"  :cmd "systemctl suspend")
-    (power-item :icon "󰍃" :label "Logout"   :class "logout"   :cmd "hyprctl dispatch exit")))
+    (power-item :icon "system-shutdown-symbolic"       :label "Shutdown" :class "shutdown" :cmd "systemctl poweroff")
+    (power-item :icon "system-reboot-symbolic"         :label "Reboot"   :class "reboot"   :cmd "systemctl reboot")
+    (power-item :icon "media-playback-pause-symbolic"  :label "Suspend"  :class "suspend"  :cmd "systemctl suspend")
+    (power-item :icon "system-log-out-symbolic"        :label "Logout"   :class "logout"   :cmd "hyprctl dispatch 'hl.dsp.exit()'")))
 
 ; A transparent full-screen window shared by the popups: it dismisses them on
 ; a click anywhere outside. Closing lists every popup, since eww skips the ones
@@ -119,14 +119,14 @@
     (centerbox :class "calendar-header"
                :orientation "h"
       (calendar-nav :offset {cal.offset - 1} :class "calendar-arrow" :halign "start"
-        (label :text ""))
+        (image :icon "go-previous-symbolic" :icon-size "menu"))
       (calendar-nav :offset 0 :class "calendar-title ${cal.offset == 0 ? 'here' : ''}"
         (box :orientation "h"
              :space-evenly false
           (label :class "calendar-month" :text {cal.month})
           (label :class "calendar-year" :text {cal.year})))
       (calendar-nav :offset {cal.offset + 1} :class "calendar-arrow" :halign "end"
-        (label :text "")))
+        (image :icon "go-next-symbolic" :icon-size "menu")))
     (box :class "calendar-row"
       (for letter in {cal.weekdays}
         (label :class "calendar-weekday" :text letter)))
@@ -198,53 +198,75 @@
 ; supplies `qs` while the panel is open and scripts/qs-action.sh runs the
 ; clicks. Command lines only ever carry ids from `qs`, never SSIDs or device
 ; names: those are other people's text, and eww pastes values into a shell.
+; Icons are GNOME's symbolic ones, recoloured by GTK to the text colour.
 
 (defvar qs-open "")
 (deflisten qs :initial "{}" "~/.config/eww/scripts/qs-state.py")
 
-(defwidget qs-expander [section]
-  (button :class "qs-expander ${qs-open == section ? 'open' : ''}"
+; The arrow that slides a section open below its row, turning to point down.
+(defwidget qs-arrow [section]
+  (button :class "qs-arrow ${qs-open == section ? 'open' : ''}"
           :onclick "~/.config/eww/scripts/qs-action.sh expand ${section} ${qs-open}"
           :timeout "2s"
-    (label :text {qs-open == section ? qs.icons.chevron_up : qs.icons.chevron_down})))
+    (image :icon "go-next-symbolic" :icon-size "menu")))
 
-(defwidget qs-tile [on icon title subtitle action ?section]
-  (box :class "qs-tile ${on ? 'on' : ''}"
+; A round icon button, as in the panel's top row.
+(defwidget qs-round [icon action ?class]
+  (button :class "qs-round ${class}"
+          :onclick "~/.config/eww/scripts/qs-action.sh ${action}"
+          :timeout "2s"
+    (image :icon icon :icon-size "menu")))
+
+; A pill toggle. With a section it is split, the right end opening the list.
+; Without a subtitle the title sits alone in the middle.
+(defwidget qs-tile [on icon title action ?subtitle ?section]
+  (box :class "qs-tile ${on ? 'on' : ''} ${section != '' ? 'split' : ''}"
        :space-evenly false
     (button :class "qs-tile-main"
             :hexpand true
             :onclick "~/.config/eww/scripts/qs-action.sh ${action}"
             :timeout "10s"
       (box :space-evenly false
-        (label :class "qs-tile-icon" :text icon)
+        (image :class "qs-tile-icon" :icon icon :icon-size "menu")
         (box :orientation "v"
              :space-evenly false
              :valign "center"
-          (label :class "qs-tile-title" :halign "start" :limit-width {section != "" ? 12 : 16} :text title)
-          (label :class "qs-tile-subtitle" :halign "start" :limit-width {section != "" ? 14 : 19} :text subtitle))))
+          (label :class "qs-tile-title" :halign "start" :limit-width {section != "" ? 11 : 15} :text title)
+          (label :class "qs-tile-subtitle"
+                 :visible {subtitle != ""}
+                 :halign "start"
+                 :limit-width {section != "" ? 14 : 18}
+                 :text subtitle))))
     (box :visible {section != ""}
-      (qs-expander :section section))))
+      (qs-arrow :section section))))
 
-(defwidget qs-section [name title]
+(defwidget qs-section [name title icon]
   (revealer :transition "slidedown"
             :reveal {qs-open == name}
             :duration "250ms"
     (box :class "qs-section"
          :orientation "v"
          :space-evenly false
-      (label :class "qs-section-title" :halign "start" :text title)
+      (box :class "qs-section-header"
+           :space-evenly false
+        (box :class "qs-section-badge"
+          (image :icon icon :icon-size "menu"))
+        (label :class "qs-section-title" :halign "start" :text title))
       (children))))
 
 ; Takes its icons as arguments: a row inside a `for` that reads `qs` itself
-; leaves a listener behind when the list rebuilds ("Scope not in graph").
+; leaves a listener behind when the list rebuilds ("Scope not in graph"). The
+; mark at the end is a tick or a lock; an empty one keeps its space, hidden.
 (defwidget qs-row [icon mark name active action]
   (button :class "qs-list-row ${active ? 'active' : ''}"
           :onclick "~/.config/eww/scripts/qs-action.sh ${action}"
           :timeout "30s"
     (box :space-evenly false
-      (label :class "qs-list-icon" :text icon)
-      (label :class "qs-list-name" :halign "start" :hexpand true :limit-width 28 :text name)
-      (label :class "qs-list-icon" :text mark))))
+      (image :class "qs-list-icon" :icon icon :icon-size "menu")
+      (label :class "qs-list-name" :halign "start" :hexpand true :limit-width 30 :text name)
+      (image :class "qs-list-mark ${mark == '' ? 'hidden' : ''}"
+             :icon {mark != "" ? mark : "object-select-symbolic"}
+             :icon-size "menu"))))
 
 (defwidget qs-notice [text]
   ; A revealer rather than :visible, because a label built hidden stays hidden
@@ -261,6 +283,12 @@
           :timeout "2s"
     (label :halign "start" :text text)))
 
+(defwidget qs-power-item [label action]
+  (button :class "qs-power-item"
+          :onclick "~/.config/eww/scripts/qs-action.sh power ${action}"
+          :timeout "2s"
+    (label :halign "start" :text label)))
+
 (defwidget quick-settings []
   (box :class "quick-settings"
        :orientation "v"
@@ -268,28 +296,42 @@
     (box :class "qs-top"
          :space-evenly false
       (box :class "qs-battery"
-           :hexpand true
            :halign "start"
            :space-evenly false
            :visible {qs.battery.present}
-        (label :class "qs-battery-icon" :text {qs.battery.icon})
+        (image :class "qs-battery-icon" :icon {qs.battery.icon} :icon-size "menu")
         (label :class "qs-battery-percent" :text "${qs.battery.percent}%"))
-      (box :hexpand true :visible {!qs.battery.present})
-      (button :class "qs-round"
-              :onclick "~/.config/eww/scripts/qs-action.sh lock"
-              :timeout "2s"
-        (label :text {qs.icons.lock}))
-      (button :class "qs-round"
-              :onclick "~/.config/eww/scripts/qs-action.sh power-menu"
-              :timeout "2s"
-        (label :text {qs.icons.power})))
+      (box :hexpand true)
+      (qs-round :icon "camera-photo-symbolic" :action "screenshot")
+      (qs-round :icon "system-lock-screen-symbolic" :action "lock")
+      (qs-round :icon "system-shutdown-symbolic"
+                :action "expand power ${qs-open}"
+                :class {qs-open == "power" ? "open" : ""}))
+
+    ; GNOME's power submenu, opened by the power button above.
+    (revealer :transition "slidedown"
+              :reveal {qs-open == "power"}
+              :duration "250ms"
+      (box :class "qs-section qs-power"
+           :orientation "v"
+           :space-evenly false
+        (box :class "qs-section-header"
+             :space-evenly false
+          (box :class "qs-section-badge"
+            (image :icon "system-shutdown-symbolic" :icon-size "large-toolbar"))
+          (label :class "qs-section-title" :halign "start" :text "Power Off"))
+        (qs-power-item :label "Suspend" :action "suspend")
+        (qs-power-item :label "Restart" :action "reboot")
+        (qs-power-item :label "Power Off" :action "poweroff")
+        (box :class "qs-separator")
+        (qs-power-item :label "Log Out" :action "logout")))
 
     (box :class "qs-slider-row"
          :space-evenly false
-      (button :class "qs-round"
+      (button :class "qs-slider-icon"
               :onclick "~/.config/eww/scripts/qs-action.sh volume-mute"
               :timeout "2s"
-        (label :text {qs.audio.icon}))
+        (image :icon {qs.audio.icon} :icon-size "menu"))
       ; eww's scale stops one short of :max, so 101 is what reaches 100%.
       (scale :class "qs-scale"
              :hexpand true
@@ -299,12 +341,15 @@
              :value {qs.audio.percent}
              :onchange "~/.config/eww/scripts/qs-action.sh volume {}"
              :timeout "2s")
-      (qs-expander :section "audio"))
-    (qs-section :name "audio" :title "Sound Output"
+      ; GNOME only offers the output list when there is a choice.
+      (box :class "qs-slider-end"
+        (box :visible {arraylength(qs.audio.sinks ?: []) > 1}
+          (qs-arrow :section "audio"))))
+    (qs-section :name "audio" :title "Sound Output" :icon "audio-speakers-symbolic"
       (box :orientation "v" :space-evenly false
         (for sink in {qs.audio.sinks}
           (qs-row :icon {sink.icon}
-                  :mark {sink.mark}
+                  :mark {sink.active ? "object-select-symbolic" : ""}
                   :name {sink.name}
                   :active {sink.active}
                   :action "sink ${sink.id}"))))
@@ -312,7 +357,7 @@
     (box :class "qs-slider-row"
          :space-evenly false
       (box :class "qs-slider-icon"
-        (label :text {qs.icons.brightness}))
+        (image :icon {qs.brightness.icon} :icon-size "menu"))
       (scale :class "qs-scale"
              :hexpand true
              :min 1
@@ -323,6 +368,24 @@
              :timeout "2s")
       (box :class "qs-slider-end"))
 
+    ; The keyboard backlight has a few levels rather than a range (off, low and
+    ; high on a ThinkPad), so the knob snaps to them. Hidden without one, and
+    ; until `qs` first arrives: ?. reads a missing key as null, not an error.
+    (box :class "qs-slider-row"
+         :space-evenly false
+         :visible {qs.keyboard_backlight?.present ?: false}
+      (box :class "qs-slider-icon"
+        (image :icon "keyboard-brightness-symbolic" :icon-size "menu"))
+      (scale :class "qs-scale"
+             :hexpand true
+             :min 0
+             :max {(qs.keyboard_backlight?.max ?: 1) + 1}
+             :round-digits 0
+             :value {qs.keyboard_backlight?.level ?: 0}
+             :onchange "~/.config/eww/scripts/qs-action.sh keyboard-backlight {}"
+             :timeout "2s")
+      (box :class "qs-slider-end"))
+
     (box :class "qs-tile-row"
       (qs-tile :on {qs.wifi.on}
                :icon {qs.wifi.icon}
@@ -330,13 +393,13 @@
                :subtitle {qs.wifi.subtitle}
                :action "wifi-toggle"
                :section "wifi")
-      (qs-tile :on {qs.bluetooth.on}
-               :icon {qs.bluetooth.icon}
-               :title "Bluetooth"
-               :subtitle {qs.bluetooth.subtitle}
-               :action "bluetooth-toggle"
-               :section "bluetooth"))
-    (qs-section :name "wifi" :title "Wi-Fi Networks"
+      (qs-tile :on {qs.vpn.on}
+               :icon {qs.vpn.icon}
+               :title "VPN"
+               :subtitle {qs.vpn.subtitle}
+               :action "vpn ${qs.vpn.on ? 'down' : 'up'} ${qs.vpn.target}"
+               :section "vpn"))
+    (qs-section :name "wifi" :title "Wi-Fi" :icon "network-wireless-symbolic"
       (box :orientation "v" :space-evenly false
         (for network in {qs.wifi.networks}
           (qs-row :icon {network.icon}
@@ -345,8 +408,29 @@
                   :active {network.active}
                   :action "wifi-connect ${network.connect}")))
       (qs-notice :text {qs.wifi.notice})
-      (qs-link :text "All Networks..." :action "wifi-settings"))
-    (qs-section :name "bluetooth" :title "Bluetooth Devices"
+      (qs-link :text "All Networks" :action "wifi-settings"))
+    (qs-section :name "vpn" :title "VPN" :icon "network-vpn-symbolic"
+      (box :orientation "v" :space-evenly false
+        (for vpn in {qs.vpn.connections}
+          (qs-row :icon {vpn.icon}
+                  :mark {vpn.mark}
+                  :name {vpn.name}
+                  :active {vpn.active}
+                  :action "vpn ${vpn.active ? 'down' : 'up'} ${vpn.uuid}")))
+      (qs-notice :text {qs.vpn.notice}))
+
+    (box :class "qs-tile-row"
+      (qs-tile :on {qs.bluetooth.on}
+               :icon {qs.bluetooth.icon}
+               :title "Bluetooth"
+               :subtitle {qs.bluetooth.subtitle}
+               :action "bluetooth-toggle"
+               :section "bluetooth")
+      (qs-tile :on {qs.night.on}
+               :icon "night-light-symbolic"
+               :title "Night Light"
+               :action "night"))
+    (qs-section :name "bluetooth" :title "Bluetooth" :icon "bluetooth-active-symbolic"
       (box :orientation "v" :space-evenly false
         (for device in {qs.bluetooth.devices}
           (qs-row :icon {device.icon}
@@ -355,30 +439,37 @@
                   :active {device.connected}
                   :action "bluetooth-device ${device.mac} ${device.connected ? 'disconnect' : 'connect'}")))
       (qs-notice :text {qs.bluetooth.notice})
-      (qs-link :text "Bluetooth Settings..." :action "bluetooth-settings"))
+      (qs-link :text "Bluetooth Settings" :action "bluetooth-settings"))
+
+    (box :class "qs-tile-row"
+      (qs-tile :on {qs.dark.on}
+               :icon "dark-mode-symbolic"
+               :title "Dark Style"
+               :action "dark-style")
+      (qs-tile :on {qs.dnd.on}
+               :icon "notifications-disabled-symbolic"
+               :title "Do Not Disturb"
+               :action "dnd"))
 
     (box :class "qs-tile-row"
       (qs-tile :on false
-               :icon {qs.icons.keyboard}
+               :icon "input-keyboard-symbolic"
                :title "Keyboard"
                :subtitle {qs.keyboard.layout}
-               :action "keyboard-next ${qs.keyboard.device}")
-      (qs-tile :on {!qs.mic.muted}
-               :icon {qs.mic.icon}
-               :title "Microphone"
-               :subtitle {qs.mic.subtitle}
-               :action "mic-mute"))
-    (box :class "qs-tile-row"
-      (qs-tile :on {qs.night.on}
-               :icon {qs.icons.night}
-               :title "Night Light"
-               :subtitle {qs.night.subtitle}
-               :action "night")
-      (qs-tile :on {qs.dnd.on}
-               :icon {qs.icons.dnd}
-               :title "Do Not Disturb"
-               :subtitle {qs.dnd.subtitle}
-               :action "dnd"))))
+               :action "keyboard-next ${qs.keyboard.device}"
+               :section "keyboard")
+      (qs-tile :on {qs.airplane.on}
+               :icon "airplane-mode-symbolic"
+               :title "Airplane Mode"
+               :action "airplane"))
+    (qs-section :name "keyboard" :title "Keyboard" :icon "input-keyboard-symbolic"
+      (box :orientation "v" :space-evenly false
+        (for layout in {qs.keyboard.layouts}
+          (qs-row :icon "input-keyboard-symbolic"
+                  :mark {layout.mark}
+                  :name {layout.name}
+                  :active {layout.active}
+                  :action "keyboard-layout ${qs.keyboard.device} ${layout.index}"))))))
 
 (defwindow quick-settings
            :monitor 0
@@ -388,3 +479,53 @@
            :stacking "overlay"
            :namespace "eww-quick-settings"
   (quick-settings))
+
+; ============================================
+; Volume and Brightness OSD
+; ============================================
+; Shown for a moment in the middle of the screen by scripts/level-osd.py, which
+; the volume, brightness and mic-mute keys run (hypr/hyprland.lua): the icon and
+; a bar like the panel's sliders. The mic shows its icon alone, as in GNOME.
+; scripts/keyboard-backlight-osd.py shows the keyboard backlight here too, when
+; the laptop's own key changes it.
+
+(defvar level-osd '{"icon": "audio-volume-high-symbolic", "value": 0, "bar": true}')
+
+(defwindow level-osd
+           :monitor 0
+           :geometry (geometry :anchor "center center")
+           :stacking "overlay"
+           :namespace "eww-level-osd"
+  (box :class "level-osd"
+       :space-evenly false
+    (image :class "level-osd-icon" :icon {level-osd.icon} :icon-size "large-toolbar")
+    (revealer :reveal {level-osd.bar}
+              :transition "none"
+              :duration "0ms"
+      (progress :class "level-osd-bar"
+                :valign "center"
+                :value {level-osd.value}))))
+
+; ============================================
+; Low Battery Warning
+; ============================================
+; Opened in the middle of the screen by scripts/battery-warning.py (the
+; battery-warning user service) when the charge falls to 20% and to 5%. A click
+; anywhere on it dismisses it.
+
+(defvar battery-warning '{"icon": "battery-level-20-symbolic", "title": "", "text": "", "critical": false}')
+
+(defwindow battery-warning
+           :monitor 0
+           :geometry (geometry :anchor "center center")
+           :stacking "overlay"
+           :namespace "eww-battery-warning"
+  (eventbox :onclick "eww close battery-warning"
+            :cursor "pointer"
+    (box :class "battery-warning ${battery-warning.critical ? 'critical' : ''}"
+         :orientation "v"
+         :space-evenly false
+      (image :class "battery-warning-icon" :icon {battery-warning.icon} :icon-size "dialog")
+      (label :class "battery-warning-title" :text {battery-warning.title})
+      (label :class "battery-warning-text" :text {battery-warning.text})
+      (label :class "battery-warning-hint" :text "Click to dismiss"))))

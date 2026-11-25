@@ -3,5 +3,15 @@
 #network {
   margin: 0;
   padding: 0 12px;
-  color: @background;
+  color: @foreground;
+  background-image: -gtk-icontheme('network-offline-symbolic');
 }
+
+/* Wi-Fi strength classes come from the states in modules/network.jsonc. */
+#network.wifi.weak      { background-image: -gtk-icontheme('network-wireless-signal-weak-symbolic'); }
+#network.wifi.ok        { background-image: -gtk-icontheme('network-wireless-signal-ok-symbolic'); }
+#network.wifi.good      { background-image: -gtk-icontheme('network-wireless-signal-good-symbolic'); }
+#network.wifi.excellent { background-image: -gtk-icontheme('network-wireless-signal-excellent-symbolic'); }
+#network.ethernet       { background-image: -gtk-icontheme('network-wired-symbolic'); }
+#network.linked         { background-image: -gtk-icontheme('network-wired-no-route-symbolic'); }
+#network.disabled       { background-image: -gtk-icontheme('network-wireless-disabled-symbolic'); }

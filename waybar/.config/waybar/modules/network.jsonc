@@ -6,12 +6,24 @@
 
 {
   "network": {
-    "format-wifi": "󰖩",
-    "format-ethernet": "󰈀",
-    "format-disconnected": "󰖪",
+    // Icon only: styles/network.css draws it from the connection class and,
+    // for Wi-Fi, these signal-strength states (the highest one reached).
+    // The label keeps a space, since an empty one hides the module.
+    "format": " ",
+    "format-wifi": " ",
+    "format-ethernet": " ",
+    "format-linked": " ",
+    "format-disconnected": " ",
+    "format-disabled": " ",
+    "states": {
+      "excellent": 75,
+      "good": 50,
+      "ok": 25,
+      "weak": 0
+    },
     "interval": 10,
     "tooltip-format-wifi": "{essid} ({signalStrength}%)",
-    "tooltip-format-ethernet": "{ifname} 󰈀",
+    "tooltip-format-ethernet": "{ifname}",
     "tooltip-format-disconnected": "Disconnected",
     "on-click": "~/.config/waybar/scripts/control-panel.sh"
   }

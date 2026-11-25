@@ -11,6 +11,9 @@ gh/.config/gh/hosts.yml
 # Neovim plugin manager writes these at runtime
 nvim/.config/nvim/plugin/
 
-
 # Python bytecode from scripts/
 __pycache__/
+
+# Screenshots taken while working on the desktop: regenerable, and they can
+# show Wi-Fi names and other things that do not belong in a public repo
+.claude/playwright-screenshots/

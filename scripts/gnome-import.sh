@@ -21,24 +21,10 @@ done
 need_cmd dconf
 src="$DOTFILES_DIR/gnome"
 
-# Path mapping must match gnome-export.sh.
-declare -A PATHS=(
-  [shell]=/org/gnome/shell/
-  [interface]=/org/gnome/desktop/interface/
-  [wm]=/org/gnome/desktop/wm/
-  [peripherals]=/org/gnome/desktop/peripherals/
-  [background]=/org/gnome/desktop/background/
-  [media-keys]=/org/gnome/settings-daemon/plugins/media-keys/
-  [power]=/org/gnome/settings-daemon/plugins/power/
-  [mutter]=/org/gnome/mutter/
-  [nautilus]=/org/gnome/nautilus/
-  [tweaks]=/org/gnome/tweaks/
-)
-
-for f in "$src"/dconf/*.ini; do
-  name="$(basename "$f" .ini)"
-  path="${PATHS[$name]:-}"
-  [ -n "$path" ] || { warn "no dconf path known for $name.ini; skipping"; continue; }
+# DCONF_PATHS (name=dconf path) comes from lib.sh, shared with gnome-export.sh.
+for entry in "${DCONF_PATHS[@]}"; do
+  name="${entry%%=*}"; path="${entry#*=}"
+  f="$src/dconf/$name.ini"
   [ -s "$f" ] || continue
   log "loading $f -> $path"
   if [ "$DRY_RUN" = "1" ]; then

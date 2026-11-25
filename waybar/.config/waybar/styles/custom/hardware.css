@@ -3,5 +3,6 @@
 #custom-hardware {
   margin: 0;
   padding: 0 12px;
-  color: alpha(@background, 0.5);
+  color: alpha(@foreground, 0.5);
+  background-image: -gtk-icontheme('org.gnome.SystemMonitor-symbolic');
 }

@@ -10,20 +10,7 @@ need_cmd dconf
 out="$DOTFILES_DIR/gnome"
 mkdir -p "$out/dconf"
 
-# name=dconf path. Add a line to track another schema.
-DCONF_PATHS=(
-  "shell=/org/gnome/shell/"
-  "interface=/org/gnome/desktop/interface/"
-  "wm=/org/gnome/desktop/wm/"
-  "peripherals=/org/gnome/desktop/peripherals/"
-  "background=/org/gnome/desktop/background/"
-  "media-keys=/org/gnome/settings-daemon/plugins/media-keys/"
-  "power=/org/gnome/settings-daemon/plugins/power/"
-  "mutter=/org/gnome/mutter/"
-  "nautilus=/org/gnome/nautilus/"
-  "tweaks=/org/gnome/tweaks/"
-)
-
+# DCONF_PATHS (name=dconf path) comes from lib.sh.
 for entry in "${DCONF_PATHS[@]}"; do
   name="${entry%%=*}"; path="${entry#*=}"
   dconf dump "$path" > "$out/dconf/$name.ini"
@@ -35,8 +22,9 @@ if command -v gnome-extensions >/dev/null 2>&1; then
   log "wrote $(wc -l < "$out/extensions.txt") extension UUIDs"
 fi
 
-# Keep the export reproducible: strip the noisy app-picker layout, which
-# GNOME rewrites constantly and which is not worth tracking.
-sed -i '/^app-picker-layout=/d' "$out/dconf/shell.ini"
+# Keep the export reproducible: strip what is rewritten constantly and is not
+# worth tracking: the app-picker layout, and the colour counts the Open Bar
+# extension records each time it samples the wallpaper.
+sed -i -E '/^(app-picker-layout|count[0-9]+)=/d' "$out/dconf/shell.ini"
 
 ok "GNOME export complete"

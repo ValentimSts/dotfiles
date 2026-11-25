@@ -2,7 +2,7 @@
 PROFILE ?= gnome
 SHELL := /usr/bin/env bash
 
-.PHONY: help install stow unstow restow packages export-packages gnome-export gnome-import secrets services color-schemes color-schemes-check lint
+.PHONY: help install stow unstow restow packages packages-diff gnome-export gnome-import secrets services color-schemes color-schemes-check lint test check
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -19,11 +19,11 @@ restow: ## Re-link packages for PROFILE (after adding files)
 unstow: ## Remove links for PROFILE
 	scripts/stow.sh unstow --profile $(PROFILE)
 
-packages: ## Install pacman, AUR and flatpak packages
-	scripts/install-packages.sh
+packages: ## Install pacman, AUR and flatpak packages for PROFILE
+	scripts/install-packages.sh --profile $(PROFILE)
 
-export-packages: ## Refresh packages/*.txt from this machine
-	scripts/export-packages.sh
+packages-diff: ## Show where packages/*.txt and this machine differ
+	scripts/packages-diff.sh
 
 gnome-export: ## Dump dconf settings and extension list into gnome/
 	scripts/gnome-export.sh
@@ -43,5 +43,14 @@ color-schemes: ## Render every colour scheme port from color-schemes/.../schemes
 color-schemes-check: ## Fail if a committed port is stale (run before committing a palette change)
 	scripts/build-color-schemes.py --check
 
-lint: ## Run shellcheck over all scripts
-	shellcheck -x install.sh scripts/*.sh
+SHELL_SCRIPTS := install.sh scripts/*.sh bash/.bashrc \
+	hypr/.local/bin/wallpaper-picker color-schemes/.local/bin/color-scheme \
+	eww/.config/eww/scripts/*.sh waybar/.config/waybar/scripts/*.sh
+
+lint: ## Run shellcheck over every shell script
+	shellcheck -x $(SHELL_SCRIPTS)
+
+test: ## Run the colour scheme builder's tests
+	python3 -m pytest -q scripts
+
+check: lint test color-schemes-check ## Everything CI runs

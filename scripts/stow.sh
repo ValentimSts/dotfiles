@@ -59,17 +59,29 @@ if [ "$DRY_RUN" = "1" ]; then
   warn "dry run: conflicts Stow reports below are exactly the files a real run moves to $BACKUP_DIR"
 fi
 
+# Split off the packages that must not be folded (see PKGS_NO_FOLDING).
+folded=(); unfolded=()
+for p in "${packages[@]}"; do
+  if [[ " ${PKGS_NO_FOLDING[*]} " == *" $p "* ]]; then unfolded+=("$p"); else folded+=("$p"); fi
+done
+
+# run_stow <stow mode flag>: run Stow over both sets.
+run_stow() {
+  if [ ${#folded[@]} -gt 0 ]; then stow "${stow_flags[@]}" "$1" "${folded[@]}"; fi
+  if [ ${#unfolded[@]} -gt 0 ]; then stow "${stow_flags[@]}" --no-folding "$1" "${unfolded[@]}"; fi
+}
+
 case "$action" in
   stow)
     for p in "${packages[@]}"; do backup_conflicts "$p"; done
-    stow "${stow_flags[@]}" --stow "${packages[@]}"
+    run_stow --stow
     ;;
   restow)
     for p in "${packages[@]}"; do backup_conflicts "$p"; done
-    stow "${stow_flags[@]}" --restow "${packages[@]}"
+    run_stow --restow
     ;;
   unstow)
-    stow "${stow_flags[@]}" --delete "${packages[@]}"
+    run_stow --delete
     ;;
 esac
 ok "$action complete: ${packages[*]}"

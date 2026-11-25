@@ -1,2 +1,2 @@
-com.mattjakeman.ExtensionManager
+# Flatpaks for every profile.
 io.github.flattool.Ignition

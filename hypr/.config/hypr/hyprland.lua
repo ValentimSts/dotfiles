@@ -8,15 +8,16 @@
 ------------------
 
 -- See https://wiki.hypr.land/configuring/core/monitors/
+-- The laptop panel at its native mode.
 hl.monitor({
-    output   = "",
-    mode     = "1920x1080",
+    output   = "eDP-1",
+    mode     = "preferred",
     position = "auto",
     scale    = 1,
     bitdepth = 8,
 })
 
--- Any monitor that is not the laptop panel mirrors it.
+-- Any other monitor mirrors it.
 hl.monitor({
     output   = "",
     mode     = "preferred",
@@ -54,9 +55,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("nm-applet --indicator")
     hl.exec_cmd("blueman-applet")
 
-    -- waybar, hypridle and awww-daemon (wallpaper) are user services pulled in
-    -- by graphical-session.target when the session target starts
-    hl.exec_cmd("systemctl --user enable --now waybar")
+    -- waybar, eww, hypridle and awww-daemon (wallpaper) are enabled user
+    -- services (scripts/enable-services.sh), pulled in by
+    -- graphical-session.target when the session target starts
     hl.exec_cmd("systemctl --user start hyprland-session.target")
 end)
 
@@ -204,6 +205,17 @@ hl.config({
     },
 })
 
+-- Touchpad gestures. See https://wiki.hypr.land/configuring/core/gestures/
+hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
+hl.gesture({ fingers = 3, direction = "vertical",   action = "fullscreen", mode = "maximize" })
+hl.gesture({ fingers = 4, direction = "vertical",   action = "fullscreen" })
+hl.gesture({ fingers = 4, direction = "pinchin",    action = "close" })
+hl.gesture({
+    fingers   = 4,
+    direction = "pinchout",
+    action    = function() hl.dispatch(hl.dsp.exec_cmd("kitty")) end,
+})
+
 -- See https://wiki.hypr.land/configuring/core/devices/
 hl.device({
     name        = "epic-mouse-v1",
@@ -229,7 +241,7 @@ hl.bind(mainMod .. " + P",      hl.dsp.window.pseudo())         -- dwindle only
 hl.bind(mainMod .. " + J",      hl.dsp.layout("togglesplit"))   -- dwindle only
 
 -- Restart waybar
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("pkill waybar && waybar &"))
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("systemctl --user restart waybar"))
 
 -- Screenshots (hyprshot)
 hl.bind("PRINT",         hl.dsp.exec_cmd("hyprshot -m window"))
@@ -267,13 +279,16 @@ hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
--- Laptop multimedia keys for volume and LCD brightness
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl s 5%+"),                             { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 5%-"),                             { locked = true, repeating = true })
+-- Laptop multimedia keys for volume and LCD brightness. level-osd.py makes the
+-- change, then shows the level in the middle of the screen for a moment.
+-- The mute keys toggle, so they do not repeat while held.
+local levelOsd = "~/.config/eww/scripts/level-osd.py"
+hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd(levelOsd .. " volume up"),       { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd(levelOsd .. " volume down"),     { locked = true, repeating = true })
+hl.bind("XF86AudioMute",         hl.dsp.exec_cmd(levelOsd .. " volume mute"),     { locked = true })
+hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd(levelOsd .. " mic mute"),        { locked = true })
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(levelOsd .. " brightness up"),   { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(levelOsd .. " brightness down"), { locked = true, repeating = true })
 
 -- Requires playerctl
 hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
@@ -332,7 +347,7 @@ hl.layer_rule({
 
 hl.layer_rule({
     name  = "blur-eww-popups",
-    match = { namespace = "^eww-(power-menu|calendar|quick-settings|keyboard-osd)$" },
+    match = { namespace = "^eww-(power-menu|calendar|quick-settings|keyboard-osd|level-osd|battery-warning)$" },
 
     blur         = true,
     ignore_alpha = 0,

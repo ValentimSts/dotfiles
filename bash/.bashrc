@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 #
 # ~/.bashrc
 #
@@ -22,6 +23,7 @@ starship_blank_line() {
 clear() { command clear "$@"; STARSHIP_FIRST_PROMPT_DONE=; }
 reset() { command reset "$@"; STARSHIP_FIRST_PROMPT_DONE=; }
 if command -v starship >/dev/null 2>&1; then
+  # shellcheck disable=SC2034  # read by starship's init script
   starship_precmd_user_func="starship_blank_line"
   eval "$(starship init bash)"
 fi
@@ -51,11 +53,39 @@ esac
 #  Tooling
 # -----------------------------
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# Sourcing nvm.sh costs about 200 ms a shell. Put the default Node on PATH
+# straight from its folder instead, and load nvm itself the first time it is
+# called. An alias this cannot resolve (lts/*, node) falls back to loading now.
+load_nvm() {
+  unset -f nvm load_nvm
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+}
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  nvm_default=""
+  [ -r "$NVM_DIR/alias/default" ] && read -r nvm_default < "$NVM_DIR/alias/default"
+  nvm_bin="$(compgen -G "$NVM_DIR/versions/node/v${nvm_default#v}*/bin" | sort -V | tail -n 1)"
+  if [ -n "$nvm_default" ] && [ -n "$nvm_bin" ]; then
+    export PATH="$nvm_bin:$PATH"
+    nvm() { load_nvm; nvm "$@"; }
+  else
+    load_nvm
+  fi
+  unset nvm_default nvm_bin
+fi
 
-# Angular CLI completion (only if ng is on PATH)
-command -v ng >/dev/null 2>&1 && source <(ng completion script)
+# Angular CLI completion. `ng completion script` starts Node, so its output is
+# kept in a file and only regenerated when ng itself is newer.
+if command -v ng >/dev/null 2>&1; then
+  ng_completion="${XDG_CACHE_HOME:-$HOME/.cache}/ng-completion.bash"
+  if [ ! -s "$ng_completion" ] || [ "$(command -v ng)" -nt "$ng_completion" ]; then
+    mkdir -p "$(dirname "$ng_completion")"
+    ng completion script > "$ng_completion" 2>/dev/null
+  fi
+  # shellcheck disable=SC1090  # generated file
+  [ -s "$ng_completion" ] && . "$ng_completion"
+  unset ng_completion
+fi
 
 # Apply pywal colors
 # cat ~/.cache/wal/sequences

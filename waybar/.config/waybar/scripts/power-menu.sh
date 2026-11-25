@@ -4,4 +4,5 @@
 # window that dismisses the menu on a click outside it. The eww daemon runs
 # as the eww user service.
 
-exec eww open-many --toggle popup-closer power-menu
+# --no-daemonize: never start a second eww daemon if the service is slow.
+exec eww --no-daemonize open-many --toggle popup-closer power-menu

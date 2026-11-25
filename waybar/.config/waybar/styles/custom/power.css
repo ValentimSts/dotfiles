@@ -3,5 +3,6 @@
 #custom-power {
   margin: 0;
   padding: 0 12px;
-  color: @background;
+  color: @foreground;
+  background-image: -gtk-icontheme('system-shutdown-symbolic');
 }

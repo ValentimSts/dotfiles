@@ -3,6 +3,6 @@
 #tray {
   margin: 6px 6px 6px 0px;
   padding: 10px;
-  background-color: @background;
-  color: @foreground;
+  background-color: @foreground;
+  color: @background;
 }

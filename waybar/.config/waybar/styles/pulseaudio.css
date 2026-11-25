@@ -3,5 +3,13 @@
 #pulseaudio {
   margin: 0;
   padding: 0 12px;
-  color: @background;
+  color: @foreground;
+  background-image: -gtk-icontheme('audio-volume-high-symbolic');
 }
+
+/* Level classes come from the states in modules/pulseaudio.jsonc. */
+#pulseaudio.medium { background-image: -gtk-icontheme('audio-volume-medium-symbolic'); }
+#pulseaudio.low-1,
+#pulseaudio.low    { background-image: -gtk-icontheme('audio-volume-low-symbolic'); }
+#pulseaudio.silent,
+#pulseaudio.muted  { background-image: -gtk-icontheme('audio-volume-muted-symbolic'); }

@@ -18,9 +18,10 @@ done
 
 SYSTEM_COMMON=(NetworkManager bluetooth tlp)
 SYSTEM_GNOME=(gdm)
-USER_COMMON=(pipewire pipewire-pulse wireplumber)
-# hypridle and waybar ship their units; awww-daemon's, eww's and keyboard-osd's live in the systemd package.
-USER_HYPRLAND=(awww-daemon eww hypridle keyboard-osd waybar)
+# claude-dream.timer lives in the claude package.
+USER_COMMON=(pipewire pipewire-pulse wireplumber claude-dream.timer)
+# hypridle and waybar ship their units; the others live in the systemd package.
+USER_HYPRLAND=(awww-daemon battery-warning eww hypridle keyboard-backlight-osd keyboard-osd waybar)
 
 enable_system() { for s in "$@"; do run sudo systemctl enable --now "$s"; done; }
 enable_user()   { for s in "$@"; do run systemctl --user enable --now "$s"; done; }
@@ -37,9 +38,6 @@ case "$profile" in
     # hyprland-session.target; outside a session only the enable part applies.
     run systemctl --user daemon-reload
     enable_user "${USER_HYPRLAND[@]}"
-    if command -v libinput-gestures-setup >/dev/null 2>&1; then
-      run libinput-gestures-setup autostart
-    fi
     ;;
   *) die "unknown profile: $profile" ;;
 esac

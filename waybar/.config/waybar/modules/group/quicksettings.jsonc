@@ -1,0 +1,30 @@
+// ------------------
+//
+//  Quick Settings Group
+//
+// ------------------
+
+// The GNOME-style status pill: network, brightness, volume and battery in one
+// rounded container (styles/group/quicksettings.css). Clicking anywhere on it
+// opens the quick settings panel. A Waybar group cannot run a click command of
+// its own, so each module keeps its on-click and they sit edge to edge, which
+// leaves no gap in the pill that ignores clicks.
+
+{
+  "include": [
+    "~/.config/waybar/modules/network.jsonc",
+    "~/.config/waybar/modules/backlight.jsonc",
+    "~/.config/waybar/modules/pulseaudio.jsonc",
+    "~/.config/waybar/modules/battery.jsonc"
+  ],
+
+  "group/quicksettings": {
+    "orientation": "horizontal",
+    "modules": [
+      "network",
+      "backlight",
+      "pulseaudio",
+      "battery"
+    ]
+  }
+}

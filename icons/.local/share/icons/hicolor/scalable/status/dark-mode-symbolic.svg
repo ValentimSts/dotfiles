@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Dark Style: a ring with one half filled, after GNOME Shell's icon. -->
+<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 16 16" width="16px"><path fill-rule="evenodd" d="m 8 1 a 7 7 0 1 0 0 14 a 7 7 0 1 0 0 -14 z m 0 2 v 10 a 5 5 0 0 1 0 -10 z"/></svg>

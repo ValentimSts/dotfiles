@@ -7,17 +7,25 @@
 {
   "battery": {
     "interval": 30,
+    // The icon is drawn by styles/battery.css from these classes: lN is the
+    // nearest tenth, for GNOME's battery-level-N icons. A state applies while
+    // the charge is at or below its number, and the lowest matching one wins.
     "states": {
-      "good": 95,
-      "warning": 30,
-      "critical": 20
+      "l0": 4,
+      "l10": 14,
+      "l20": 24,
+      "l30": 34,
+      "l40": 44,
+      "l50": 54,
+      "l60": 64,
+      "l70": 74,
+      "l80": 84,
+      "l90": 94,
+      "l100": 100
     },
-    "format": "{icon} {capacity}%",
-    "format-charging": "󰂄 {capacity}%",
-    "format-plugged": "{capacity}% 󰂄 ",
-    "format-alt": "{icon} {time}",
+    "format": "{capacity}%",
+    "format-alt": "{time}",
     "format-alt-click": "click-right",
-    "on-click": "~/.config/waybar/scripts/control-panel.sh",
-    "format-icons": ["󰁻", "󰁼", "󰁾", "󰂀", "󰂂", "󰁹"]
+    "on-click": "~/.config/waybar/scripts/control-panel.sh"
   }
 }
