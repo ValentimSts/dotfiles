@@ -5,9 +5,13 @@ Reads the tool call on stdin and blocks two kinds of command, telling Claude
 why. Everything else runs as usual, and the hook prints nothing.
 
   never      a plain force push, or any force push to the default branch.
-  user only  history rewrites, discarding uncommitted work, a forced branch
-             delete, a recursive rm outside the project, dropping database
-             tables. Claude is told to hand the command to the user to run.
+  user only  history rewrites, discarding uncommitted work, a recursive rm
+             outside the project, dropping database tables. Claude is told to
+             hand the command to the user to run.
+
+A forced branch delete (`git branch -D`) is allowed (Val, 2026-11-26): a
+squash merge leaves `-d` refusing every merged branch, and CLAUDE.md's Branch
+Cleanup rule still has Claude show `git log` and wait for confirmation first.
 
 Both are a block, not a permission prompt: Orca answers permission prompts by
 itself when its chats have full access, so a prompt would stop nothing there.
@@ -342,10 +346,6 @@ class Guard:
         elif command == "stash":
             if args[:1] in (["drop"], ["clear"]):
                 self.user_only.append("`git stash %s` deletes stashed work" % args[0])
-        elif command == "branch":
-            delete = has_short(args, "d") or has_long(args, "--delete")
-            if has_short(args, "D") or (delete and (has_short(args, "f") or has_long(args, "--force"))):
-                self.user_only.append("`git branch -D` deletes a branch that may not be merged")
         elif command in ("filter-branch", "filter-repo"):
             self.user_only.append("`git %s` rewrites history" % command)
 
