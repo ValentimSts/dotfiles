@@ -45,7 +45,8 @@ color-schemes-check: ## Fail if a committed port is stale (run before committing
 
 SHELL_SCRIPTS := install.sh scripts/*.sh bash/.bashrc \
 	hypr/.local/bin/wallpaper-picker color-schemes/.local/bin/color-scheme \
-	eww/.config/eww/scripts/*.sh waybar/.config/waybar/scripts/*.sh
+	eww/.config/eww/scripts/*.sh waybar/.config/waybar/scripts/*.sh \
+	system/etc/NetworkManager/dispatcher.d/*
 
 lint: ## Run shellcheck over every shell script
 	shellcheck -x $(SHELL_SCRIPTS)

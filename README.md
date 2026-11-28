@@ -29,6 +29,7 @@ to `~/.config/kitty/kitty.conf`.
 | `scripts/` | Individual steps. Each accepts `--help` and `--dry-run`. |
 | `packages/` | `pacman.txt`, `aur.txt`, `flatpak.txt` for every profile, plus `<kind>-gnome.txt` and `<kind>-hyprland.txt`: one package per line, curated by hand. |
 | `gnome/` | `dconf/*.ini` exports and `extensions.txt` (enabled extension UUIDs). |
+| `system/` | Files for `/`, which root must own, so Stow cannot link them. Copied by hand: see below. |
 
 ### Packages by profile
 
@@ -52,6 +53,16 @@ down, duplicates merged, contradictions settled. Nothing live changes until
 `claude-dream apply`; `claude-dream diff` shows a proposal and `claude-dream
 discard` drops it. The model runs without shell or network and never sees tool
 output, and every memory directory is versioned in `~/.claude/memory.git`.
+
+`system/` holds one file so far, a NetworkManager dispatcher script that turns
+auto-connect off for an open Wi-Fi network as soon as it turns out to sit behind
+a login page. Install it with:
+
+```sh
+sudo install -o root -g root -m 755 \
+  system/etc/NetworkManager/dispatcher.d/90-captive-no-autoconnect \
+  /etc/NetworkManager/dispatcher.d/
+```
 
 ## Day-to-day
 
